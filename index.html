@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Real data from real residents. Compare Bengaluru neighborhoods on rent, commute, safety and everyday life — built entirely by the community."/>
+<meta name="description" content="Real data from real residents. Compare 46 Bengaluru neighborhoods on rent, commute, safety and everyday life — built entirely by the community."/>
 <title>Bengaluru in Numbers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
@@ -217,7 +217,7 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
   </div>
   <div class="stats-grid">
     <div class="stat-card"><div class="num" id="stat-r">—</div><div class="lbl">Responses collected</div></div>
-    <div class="stat-card"><div class="num">45</div><div class="lbl">Areas covered</div></div>
+    <div class="stat-card"><div class="num">46</div><div class="lbl">Areas covered</div></div>
     <div class="stat-card"><div class="num">100%</div><div class="lbl">Anonymous data</div></div>
     <div class="stat-card"><div class="num">Free</div><div class="lbl">Always, forever</div></div>
   </div>
@@ -307,7 +307,7 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
             <select id="living-situation">
               <option value="">— Select —</option>
               <option>Living alone</option><option>With roommates</option>
-              <option>With partner (no kids)</option><option>Family with young kids</option>
+              <option>With partner (no kids)</option><option>Living with parents</option><option>Living with parents + partner (no kids)</option><option>Family with young kids</option>
               <option>Family with teens</option><option>Joint / extended family</option>
             </select>
             <div class="emsg" id="err-living">Please select your living situation</div>
@@ -396,7 +396,7 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
               </optgroup>
               <optgroup label="─── North ───">
                 <option>Hebbal</option><option>Yelahanka</option><option>Thanisandra</option>
-                <option>Hennur</option><option>Banaswadi</option><option>RT Nagar</option><option>Mathikere</option>
+                <option>Hennur</option><option>Banaswadi</option><option>RT Nagar</option><option>Mathikere</option><option>Vidyaranyapura</option>
               </optgroup>
               <optgroup label="─── East ───">
                 <option>Whitefield</option><option>Sarjapur Road</option><option>Marathahalli</option>
@@ -593,7 +593,7 @@ const SUPABASE_URL='https://ltgbfgvyllnisutnsqql.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0Z2JmZ3Z5bGxuaXN1dG5zcXFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTI0NjUsImV4cCI6MjA4OTE2ODQ2NX0.W9kVC3o11qYV1UYWfRHQB0IiedLuruOjaslgMrY1tEA';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const AREA_ZONES={"Indiranagar":"Central","Domlur":"Central","Old Airport Road":"Central","Frazer Town":"Central","Shivajinagar":"Central","MG Road / Brigade Road":"Central","Kammanahalli":"Central","CV Raman Nagar":"Central","Koramangala":"South","HSR Layout":"South","JP Nagar":"South","Jayanagar":"South","BTM Layout":"South","Banashankari":"South","Bannerghatta Road":"South","Electronic City":"South","Electronic City Phase 2":"South","Chandapura":"South","Kengeri":"South","Mysore Road":"South","Hebbal":"North","Yelahanka":"North","Thanisandra":"North","Hennur":"North","Banaswadi":"North","RT Nagar":"North","Mathikere":"North","Whitefield":"East","Sarjapur Road":"East","Marathahalli":"East","Bellandur":"East","Varthur":"East","Kadugodi":"East","Dommasandra":"East","Sarjapur (town)":"East","Malleswaram":"West","Rajajinagar":"West","Yeshwanthpur":"West","Vijayanagar":"West","Peenya":"West","Tumkur Road":"West","Devanahalli":"Outer","Bagalur":"Outer","Hoskote":"Outer","Attibele":"Outer"};
+const AREA_ZONES={"Indiranagar":"Central","Domlur":"Central","Old Airport Road":"Central","Frazer Town":"Central","Shivajinagar":"Central","MG Road / Brigade Road":"Central","Kammanahalli":"Central","CV Raman Nagar":"Central","Koramangala":"South","HSR Layout":"South","JP Nagar":"South","Jayanagar":"South","BTM Layout":"South","Banashankari":"South","Bannerghatta Road":"South","Electronic City":"South","Electronic City Phase 2":"South","Chandapura":"South","Kengeri":"South","Mysore Road":"South","Hebbal":"North","Yelahanka":"North","Thanisandra":"North","Hennur":"North","Banaswadi":"North","RT Nagar":"North","Mathikere":"North","Vidyaranyapura":"North","Whitefield":"East","Sarjapur Road":"East","Marathahalli":"East","Bellandur":"East","Varthur":"East","Kadugodi":"East","Dommasandra":"East","Sarjapur (town)":"East","Malleswaram":"West","Rajajinagar":"West","Yeshwanthpur":"West","Vijayanagar":"West","Peenya":"West","Tumkur Road":"West","Devanahalli":"Outer","Bagalur":"Outer","Hoskote":"Outer","Attibele":"Outer"};
 const ALL_AREAS=Object.keys(AREA_ZONES);
 
 const AREA_PROFILE={"Koramangala":{vibe:"Startup hub, nightlife, young professionals",budget:"high",vehicle:"optional",family:false,nightlife:true,tags:["Startup hub","Great nightlife","Metro nearby","Walkable"]},"Indiranagar":{vibe:"Upscale, social scene, central living",budget:"high",vehicle:"optional",family:false,nightlife:true,tags:["Pub street","Trendy cafes","Metro access","Walkable"]},"HSR Layout":{vibe:"Tech workers, calm, family-friendly",budget:"high",vehicle:"helpful",family:true,nightlife:false,tags:["Tech crowd","Family-friendly","Wide roads","Good food"]},"BTM Layout":{vibe:"Budget-friendly, young crowd, lively",budget:"mid",vehicle:"helpful",family:false,nightlife:false,tags:["Affordable","Young crowd","Good connectivity","Markets"]},"Whitefield":{vibe:"IT corridor, expats, gated societies",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["IT hub","Gated societies","Good schools","Expat community"]},"Sarjapur Road":{vibe:"Growing IT corridor, mid-budget",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["IT corridor","New developments","Good value","Growing"]},"Marathahalli":{vibe:"IT workers, practical, budget-friendly",budget:"mid",vehicle:"helpful",family:false,nightlife:false,tags:["Near IT parks","Budget options","Good food","High traffic"]},"Hebbal":{vibe:"North BLR, airport proximity, growing",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["Near airport","Growing area","Flyover access","Residential"]},"JP Nagar":{vibe:"Established south, family-oriented",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Quiet locality","Good schools","Parks","Residential"]},"Jayanagar":{vibe:"Old Bengaluru charm, cultural, families",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Heritage feel","Darshinis","Parks","Established"]},"Bellandur":{vibe:"IT crowd, lakeside, mid-budget",budget:"mid",vehicle:"needed",family:false,nightlife:false,tags:["Near Ecospace","New apartments","Lake nearby","Good value"]},"Malleswaram":{vibe:"Old BLR, cultural, family-centric",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Heritage area","Markets","Temples","Residential"]},"Rajajinagar":{vibe:"West BLR, families, metro access",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Metro access","Established","Good markets","Family vibe"]},"Banashankari":{vibe:"South, families, affordable residential",budget:"low",vehicle:"helpful",family:true,nightlife:false,tags:["Affordable","Residential","Good schools","South BLR"]},"Electronic City":{vibe:"IT hub, budget rents, far from centre",budget:"low",vehicle:"needed",family:false,nightlife:false,tags:["IT campus zone","Budget rents","Shuttle friendly","Far from centre"]},"Yelahanka":{vibe:"North, calm, spacious, growing",budget:"low",vehicle:"needed",family:true,nightlife:false,tags:["Near airport","Spacious","Affordable","Growing"]},"Hennur":{vibe:"North, growing, mid-budget residential",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["Growing area","Good value","Improving connectivity","Residential"]}};
