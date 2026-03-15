@@ -209,7 +209,7 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
         <li>No way to trace back to you — your individual response is never shown to anyone, ever</li>
         <li>No exact numbers exposed — rent and income shown only as ranges and medians</li>
         <li>No identifying details in comments — all open text reviewed before publishing</li>
-        <li>Data only appears publicly once 5+ people have contributed for that area</li>
+        <li>Data only appears publicly once 3+ people have contributed for that area</li>
         <li>We don't sell your data — ever, to anyone, for any reason</li>
       </ul>
       <p style="font-size:12px;color:#0369a1;margin-top:8px;font-style:italic;">This product runs on trust. We'd rather have fewer responses than compromise a single person's privacy.</p>
@@ -654,7 +654,7 @@ function getChips(id){return Array.from(document.querySelectorAll(`#${id} .chip.
 // ── SUBMIT TO SUPABASE ──
 async function submitForm(){
   const btn=document.getElementById('submit-btn');
-  btn.textContent='Submitting...';btn.classList.add('btn-disabled');
+  if(btn){btn.textContent='Submitting...';btn.classList.add('btn-disabled');}
   const ratings={};
   RATINGS.forEach(r=>{ratings[r.key]=formData['rating_'+r.key]||0;});
   const entry={
@@ -696,11 +696,12 @@ async function submitForm(){
     isUnlocked=true;
     localStorage.setItem('blr_unlocked','1');
     await loadStats();
+    resetSubmitBtn();
     document.getElementById('contribute-form').style.display='none';
     document.getElementById('contribute-success').style.display='block';
     showToast('Response saved! Thank you 🙏');
   }catch(e){
-    btn.textContent='Submit →';btn.classList.remove('btn-disabled');
+    resetSubmitBtn();
     showToast('Something went wrong. Please try again.');
     console.error(e);
   }
@@ -712,13 +713,15 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ── NAVIGATION ──
 function showExplore(){isUnlocked=true;showScreen('explore');document.getElementById('explore-locked').style.display='none';document.getElementById('explore-unlocked').style.display='block';renderAreaGrid();}
 function unlockExplore(){isUnlocked=true;document.getElementById('explore-locked').style.display='none';document.getElementById('explore-unlocked').style.display='block';renderAreaGrid();}
-function addAnotherArea(){document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';['area-select','bhk','furnished','maintenance','property-type','parking','building-age','water','power','internet','flooding','rent-percent'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('rent').value='';document.getElementById('love-text').value='';document.getElementById('improve-text').value='';document.querySelectorAll('#amenity-chips .chip,#suited-chips .chip,#recommend-chips .chip').forEach(c=>c.classList.remove('selected'));formData={};buildRatings();const btn=document.getElementById('submit-btn');if(btn){btn.textContent='Submit →';btn.classList.remove('btn-disabled');}goStep(2);showScreen('contribute');}
-function startContribute(){showScreen('contribute');document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';goStep(1);}
+function resetSubmitBtn(){const btn=document.getElementById('submit-btn');if(btn){btn.textContent='Submit →';btn.classList.remove('btn-disabled');btn.onclick=submitForm;}}
+function clearValidationState(){document.querySelectorAll('.ef').forEach(el=>el.classList.remove('ef'));document.querySelectorAll('.emsg.show').forEach(el=>el.classList.remove('show'));document.querySelectorAll('.vmsg.show').forEach(el=>el.classList.remove('show'));}
+function addAnotherArea(){document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';['area-select','bhk','furnished','maintenance','property-type','parking','building-age','water','power','internet','flooding','rent-percent'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('rent').value='';document.getElementById('love-text').value='';document.getElementById('improve-text').value='';document.querySelectorAll('#amenity-chips .chip,#suited-chips .chip,#recommend-chips .chip,#commute-chips .chip').forEach(c=>c.classList.remove('selected'));formData={};buildRatings();resetSubmitBtn();clearValidationState();goStep(2);showScreen('contribute');}
+function startContribute(){showScreen('contribute');document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';formData={};buildRatings();resetSubmitBtn();clearValidationState();goStep(1);}
 function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',['home','contribute','explore'][i]===name));if(name==='explore'){const u=isUnlocked||localStorage.getItem('blr_unlocked')==='1';document.getElementById('explore-locked').style.display=u?'none':'block';document.getElementById('explore-unlocked').style.display=u?'block':'none';if(u)renderAreaGrid();}}
 function switchTab(tab){document.querySelectorAll('.exp-tab').forEach((t,i)=>t.classList.toggle('active',['browse','quiz','compare'][i]===tab));document.getElementById('exp-browse').style.display=tab==='browse'?'block':'none';document.getElementById('exp-quiz').style.display=tab==='quiz'?'block':'none';document.getElementById('exp-compare').style.display=tab==='compare'?'block':'none';if(tab==='browse')renderAreaGrid();}
 
 // ── AREA GRID ──
-function getBadge(n){if(n===0)return{label:'No data yet',cls:'b-none'};if(n<5)return{label:'🔴 Early data',cls:'b-early'};if(n<11)return{label:'🟡 Growing',cls:'b-growing'};if(n<26)return{label:'🟢 Reliable',cls:'b-reliable'};if(n<51)return{label:'🔵 Strong',cls:'b-strong'};return{label:'⭐ Verified',cls:'b-verified'};}
+function getBadge(n){if(n===0)return{label:'No data yet',cls:'b-none'};if(n<3)return{label:'🔴 Early data',cls:'b-early'};if(n<11)return{label:'🟡 Growing',cls:'b-growing'};if(n<26)return{label:'🟢 Reliable',cls:'b-reliable'};if(n<51)return{label:'🔵 Strong',cls:'b-strong'};return{label:'⭐ Verified',cls:'b-verified'};}
 
 async function renderAreaGrid(search='',zone=''){
   const grid=document.getElementById('area-grid');if(!grid)return;
@@ -727,9 +730,9 @@ async function renderAreaGrid(search='',zone=''){
   const filtered=ALL_AREAS.filter(a=>a.toLowerCase().includes(search.toLowerCase())&&(!zone||AREA_ZONES[a]===zone));
   if(!filtered.length){grid.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">No areas match your filter.</p>';return;}
   grid.innerHTML=filtered.map(area=>{
-    const ar=responses.filter(r=>r.area===area);const n=ar.length;const badge=getBadge(n);const hasData=n>=5;
+    const ar=responses.filter(r=>r.area===area);const n=ar.length;const badge=getBadge(n);const hasData=n>=3;
     let rentInfo='Be the first to contribute',bhkInfo='',scoreInfo='';
-    if(n>0&&n<5)rentInfo=`${n} response${n>1?'s':''} — ${5-n} more needed`;
+    if(n>0&&n<3)rentInfo=`${n} response${n>1?'s':''} — ${3-n} more needed`;
     if(hasData){
       const rents=ar.filter(r=>r.rent>0).map(r=>r.rent);
       if(rents.length)rentInfo=`₹${Math.round(Math.min(...rents)/1000)}k–₹${Math.round(Math.max(...rents)/1000)}k/mo`;
@@ -738,7 +741,7 @@ async function renderAreaGrid(search='',zone=''){
       const sc=ar.filter(r=>r.ratings&&r.ratings.overall>0).map(r=>r.ratings.overall);
       if(sc.length)scoreInfo=(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1)+' ★';
     }
-    const dotC=n>=5?'#16a34a':n>0?'#f59e0b':'#d1d5db';
+    const dotC=n>=3?'#16a34a':n>0?'#f59e0b':'#d1d5db';
     return`<div class="area-card"><div class="area-top"><div class="area-name">${area}</div><div class="cbadge ${badge.cls}">${badge.label}</div></div><div class="area-zone">${AREA_ZONES[area]} Bengaluru</div><div class="astats"><div class="astat${hasData?'':' blurred'}">${rentInfo}</div>${bhkInfo?`<div class="astat">${bhkInfo}</div>`:''}${scoreInfo?`<div class="astat">${scoreInfo}</div>`:''}</div><div class="resp-count"><span class="dot" style="background:${dotC};"></span>${n} response${n!==1?'s':''}</div></div>`;
   }).join('');
 }
@@ -760,7 +763,7 @@ async function showQuizResults(){
   document.getElementById('quiz-results').style.display='block';
   const responses=await fetchResponses();
   const rdMap={};
-  ALL_AREAS.forEach(area=>{const ar=responses.filter(r=>r.area===area);if(ar.length>=5){const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};rdMap[area]={overall:avg('overall'),safety_day:avg('safety_day'),commute:avg('commute'),count:ar.length};}});
+  ALL_AREAS.forEach(area=>{const ar=responses.filter(r=>r.area===area);if(ar.length>=3){const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};rdMap[area]={overall:avg('overall'),safety_day:avg('safety_day'),commute:avg('commute'),count:ar.length};}});
   const scored=Object.keys(AREA_PROFILE).map(area=>({area,...scoreArea(area,quizAnswers,rdMap[area]||null)})).sort((a,b)=>b.score-a.score).slice(0,3);
   document.getElementById('quiz-results').innerHTML=`<div style="margin-bottom:1.25rem;"><h2 style="font-family:var(--serif);font-size:clamp(20px,5vw,24px);margin-bottom:6px;">Your top 3 areas</h2><p style="color:var(--muted);font-size:13px;">${Object.keys(rdMap).length>0?'Boosted by real community data where available.':'Using smart matching — improves as community data grows.'}</p></div>${scored.map((s,i)=>{const p=AREA_PROFILE[s.area];const rd=rdMap[s.area];const labels=['Top pick','Runner up','Also consider'];return`<div class="result-card${i===0?' top':''}"><div class="result-rank">${labels[i]}</div><div class="result-name">${s.area}</div><div class="result-zone">${AREA_ZONES[s.area]} Bengaluru</div><div class="result-why">${p.vibe}</div><div class="result-tags">${(p.tags||[]).map(t=>`<span class="result-tag">${t}</span>`).join('')}</div>${s.reasons.length?`<div class="result-reasons">Why it fits: ${s.reasons.join(' · ')}</div>`:''}<div class="result-data">${rd?`<div class="rdata-row"><span class="lbl">Overall</span><span class="val">${rd.overall.toFixed(1)} / 5 ★</span></div><div class="rdata-row"><span class="lbl">Commute</span><span class="val">${rd.commute.toFixed(1)} / 5</span></div><div class="rdata-row"><span class="lbl">Safety (day)</span><span class="val">${rd.safety_day.toFixed(1)} / 5</span></div><div class="rdata-row"><span class="lbl">Based on</span><span class="val">${rd.count} responses</span></div>`:`<p class="no-data-note">No community data yet. Be one of the first to contribute for this area.</p>`}</div></div>`;}).join('')}<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;"><button class="btn btn-primary" onclick="startContribute()">Contribute for one of these areas</button><button class="btn btn-outline" onclick="resetQuiz()">Retake quiz</button></div>`;
 }
@@ -772,7 +775,7 @@ async function renderCompare(){
   if(areas.length<2){out.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">Select at least 2 areas to compare.</p>';return;}
   out.innerHTML='<div class="loading-bar">Loading comparison data...</div>';
   const responses=await fetchResponses();
-  const areaData=areas.map(area=>{const ar=responses.filter(r=>r.area===area);const n=ar.length;const hasData=n>=5;const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};const rents=ar.filter(r=>r.rent>0).map(r=>r.rent);const mode=key=>{const m={};ar.forEach(r=>{if(r[key])m[r[key]]=(m[r[key]]||0)+1;});const t=Object.entries(m).sort((a,b)=>b[1]-a[1])[0];return t?t[0]:null;};return{area,n,hasData,rent_min:rents.length?Math.min(...rents):null,rent_max:rents.length?Math.max(...rents):null,rent_med:rents.length?Math.round(rents.sort((a,b)=>a-b)[Math.floor(rents.length/2)]/1000)*1000:null,bhk_common:mode('bhk'),overall:avg('overall'),commute:avg('commute'),auto_cab:avg('auto_cab'),walkability:avg('walkability'),safety_day:avg('safety_day'),safety_night:avg('safety_night'),food_dining:avg('food_dining'),air_quality:avg('air_quality'),traffic:avg('traffic'),greenery:avg('greenery'),water:mode('water'),internet:mode('internet')};});
+  const areaData=areas.map(area=>{const ar=responses.filter(r=>r.area===area);const n=ar.length;const hasData=n>=3;const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};const rents=ar.filter(r=>r.rent>0).map(r=>r.rent);const mode=key=>{const m={};ar.forEach(r=>{if(r[key])m[r[key]]=(m[r[key]]||0)+1;});const t=Object.entries(m).sort((a,b)=>b[1]-a[1])[0];return t?t[0]:null;};return{area,n,hasData,rent_min:rents.length?Math.min(...rents):null,rent_max:rents.length?Math.max(...rents):null,rent_med:rents.length?Math.round(rents.sort((a,b)=>a-b)[Math.floor(rents.length/2)]/1000)*1000:null,bhk_common:mode('bhk'),overall:avg('overall'),commute:avg('commute'),auto_cab:avg('auto_cab'),walkability:avg('walkability'),safety_day:avg('safety_day'),safety_night:avg('safety_night'),food_dining:avg('food_dining'),air_quality:avg('air_quality'),traffic:avg('traffic'),greenery:avg('greenery'),water:mode('water'),internet:mode('internet')};});
   function bw(key,hi=true){const v=areaData.map(d=>d[key]).filter(x=>x!==null);if(v.length<2)return{};const b=hi?Math.max(...v):Math.min(...v);const w=hi?Math.min(...v):Math.max(...v);return{best:b,worst:w};}
   function cls(v,bwObj,hi=true){if(v===null||!bwObj.best)return'cv';if(v===bwObj.best)return'cv best';if(v===bwObj.worst)return'cv worst';return'cv';}
   function st(v){if(!v)return'';const f=Math.round(v);return'★'.repeat(f)+'☆'.repeat(5-f);}
@@ -780,7 +783,7 @@ async function renderCompare(){
   let html=`<div class="compare-table"><table class="ctable"><thead><tr><th style="min-width:100px;"></th>${areaData.map(d=>`<th class="ath">${d.area}</th>`).join('')}</tr></thead><tbody>`;
   rows.forEach(row=>{if(row.section){html+=`<tr><td colspan="${areaData.length+1}" class="sdiv">${row.section}</td></tr>`;}else if(row.render){html+=`<tr><td class="row-lbl">${row.label}</td>${areaData.map(d=>row.render(d)).join('')}</tr>`;}else if(row.key){const bwObj=bw(row.key,row.hi);html+=`<tr><td class="row-lbl">${row.label}</td>${areaData.map(d=>{if(!d.hasData)return`<td><span class="no-dc">No data</span></td>`;const v=d[row.key];if(v===null)return`<td><span class="no-dc">—</span></td>`;return`<td><span class="${cls(v,bwObj,row.hi)}">${row.fmt(v)}</span></td>`;}).join('')}</tr>`;}});
   html+=`</tbody></table></div>`;
-  if(areaData.some(d=>!d.hasData))html+=`<p style="font-size:12px;color:var(--muted);margin-top:1rem;font-style:italic;">Areas showing "No data" need 5+ responses. <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addAnotherArea()">Contribute →</span></p>`;
+  if(areaData.some(d=>!d.hasData))html+=`<p style="font-size:12px;color:var(--muted);margin-top:1rem;font-style:italic;">Areas showing "No data" need 3+ responses. <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addAnotherArea()">Contribute →</span></p>`;
   out.innerHTML=html;
 }
 
