@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Real data from real residents. Compare Bengaluru neighborhoods on rent, commute, safety and everyday life — built entirely by the community."/>
+<title>Bengaluru in Numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#E85D26;--al:#fdf0ea;--muted:#6b7280;
+  --border:rgba(0,0,0,0.1);--surface:#fff;--bg:#f8f7f4;
+  --font:'DM Sans',sans-serif;--serif:'DM Serif Display',serif;
+  --err:#dc2626;--err-bg:#fef2f2;
+}
+body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh;}
+.app{max-width:960px;margin:0 auto;padding:0 1rem 4rem;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:0.5px solid var(--border);margin-bottom:1.5rem;gap:12px;flex-wrap:wrap;}
+.nav-logo{font-family:var(--serif);font-size:19px;flex-shrink:0;}
+.nav-logo span{color:var(--accent);}
+.nav-tabs{display:flex;gap:3px;background:rgba(0,0,0,0.05);padding:3px;border-radius:10px;}
+.nav-tab{padding:7px 12px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;font-family:var(--font);white-space:nowrap;min-height:36px;}
+.nav-tab.active{background:var(--surface);color:#1a1a2e;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.screen{display:none;}.screen.active{display:block;}
+.btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);border:none;transition:all 0.2s;min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
+.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#c94d1e;}
+.btn-outline{background:transparent;color:#1a1a2e;border:1.5px solid var(--border);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-ghost{background:transparent;border:none;color:var(--muted);font-size:14px;cursor:pointer;font-family:var(--font);padding:8px 4px;min-height:44px;}.btn-ghost:hover{color:#1a1a2e;}
+.btn-dark{background:#1a1a2e;color:#fff;}
+.btn-sm{padding:9px 16px;font-size:13px;min-height:38px;}
+.btn-disabled{opacity:0.4;cursor:not-allowed;pointer-events:none;}
+.btn-full{width:100%;}
+.hero{text-align:center;padding:2rem 0 1.5rem;}
+.hero h1{font-family:var(--serif);font-size:clamp(26px,6vw,40px);line-height:1.2;margin-bottom:.875rem;}
+.hero h1 span{color:var(--accent);}
+.hero p{font-size:15px;color:var(--muted);max-width:480px;margin:0 auto 1.75rem;line-height:1.7;}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.privacy-banner{background:#f0f9ff;border:0.5px solid #bae6fd;border-radius:12px;padding:1.25rem;margin:1.5rem 0;display:flex;gap:10px;}
+.privacy-banner h3{font-size:14px;font-weight:600;color:#0c4a6e;margin-bottom:6px;}
+.privacy-banner ul{list-style:none;}
+.privacy-banner ul li{font-size:13px;color:#0369a1;line-height:1.8;padding-left:14px;position:relative;}
+.privacy-banner ul li::before{content:'—';position:absolute;left:0;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:1.25rem;}
+.stat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem;text-align:center;}
+.stat-card .num{font-size:26px;font-weight:600;color:var(--accent);}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+.prog-bar{display:flex;align-items:center;gap:6px;margin-bottom:1.75rem;}
+.prog-step{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap;}
+.prog-step.active{color:var(--accent);font-weight:500;}.prog-step.done{color:#16a34a;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;}
+.prog-step.active .step-dot{background:var(--accent);}.prog-step.done .step-dot{background:#16a34a;}
+.step-label{display:inline;}
+.prog-line{flex:1;height:1px;background:var(--border);}
+.form-section{background:var(--surface);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;border:0.5px solid var(--border);}
+.form-section h2{font-size:16px;font-weight:600;margin-bottom:4px;}
+.sec-desc{font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.5;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:.875rem;}
+.fg1{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:500;color:#1a1a2e;}
+.req{color:var(--err);margin-left:2px;}
+.opt{font-size:10px;color:var(--muted);background:rgba(0,0,0,0.05);padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:400;}
+.fhint{font-size:11px;color:var(--accent);background:var(--al);padding:4px 8px;border-radius:6px;line-height:1.5;}
+.field select,.field input[type=number]{padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface);color:#1a1a2e;outline:none;transition:border 0.2s;width:100%;appearance:auto;min-height:44px;}
+.field select:focus,.field input:focus{border-color:var(--accent);}
+.field select.ef,.field input.ef{border-color:var(--err);background:var(--err-bg);}
+.emsg{font-size:11px;color:var(--err);margin-top:2px;display:none;}.emsg.show{display:block;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:7px 13px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid var(--border);background:var(--surface);color:#1a1a2e;transition:all 0.15s;user-select:none;min-height:36px;display:inline-flex;align-items:center;}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.chip.selected{background:var(--al);border-color:var(--accent);color:var(--accent);font-weight:500;}
+.rating-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);gap:8px;}
+.rating-row:last-child{border-bottom:none;}
+.rlbl{font-size:13px;flex:1;line-height:1.4;}.rlbl .rr{color:var(--err);font-size:11px;margin-left:3px;}
+.stars{display:flex;gap:4px;flex-shrink:0;}
+.star{font-size:24px;cursor:pointer;color:#d1d5db;transition:color 0.1s;line-height:1;min-width:28px;text-align:center;}
+.star.lit{color:#f59e0b;}
+.form-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;gap:10px;}
+.vmsg{background:var(--err-bg);border:0.5px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--err);margin-top:1rem;display:none;}.vmsg.show{display:block;}
+.success-screen{text-align:center;padding:2.5rem 1rem;}
+.success-screen h2{font-family:var(--serif);font-size:clamp(22px,5vw,28px);margin-bottom:.75rem;}
+.success-screen p{color:var(--muted);font-size:15px;margin-bottom:2rem;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.7;}
+.sactions{display:flex;flex-direction:column;gap:10px;align-items:stretch;max-width:320px;margin:0 auto;}
+.exp-tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.exp-tabs::-webkit-scrollbar{display:none;}
+.exp-tab{padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:var(--font);border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;flex-shrink:0;min-height:44px;}
+.exp-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.locked-box{background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:2.5rem 1.5rem;text-align:center;}
+.locked-box h3{font-size:18px;font-weight:600;margin-bottom:8px;}
+.locked-box p{color:var(--muted);font-size:14px;max-width:320px;margin:0 auto 1.5rem;line-height:1.7;}
+.nudge{background:#fff7f5;border:1px solid #fbd5c5;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.nudge p{font-size:14px;line-height:1.6;flex:1;}
+.area-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+.area-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;transition:all 0.2s;}
+.area-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.area-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.area-name{font-size:15px;font-weight:600;}
+.cbadge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;flex-shrink:0;}
+.b-none{background:#f3f4f6;color:#6b7280;}.b-early{background:#fee2e2;color:#991b1b;}
+.b-growing{background:#fef3c7;color:#92400e;}.b-reliable{background:#dcfce7;color:#166534;}
+.b-strong{background:#dbeafe;color:#1e40af;}.b-verified{background:#f3e8ff;color:#6b21a8;}
+.area-zone{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.astats{display:flex;gap:6px;flex-wrap:wrap;}
+.astat{font-size:12px;background:var(--bg);padding:4px 8px;border-radius:6px;}
+.blurred{filter:blur(5px);user-select:none;pointer-events:none;}
+.resp-count{font-size:12px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:5px;}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.loading-bar{text-align:center;padding:2rem;color:var(--muted);font-size:14px;}
+.quiz-wrap{max-width:600px;margin:0 auto;}
+.quiz-prog{height:4px;background:rgba(0,0,0,0.07);border-radius:4px;margin-bottom:1.5rem;overflow:hidden;}
+.quiz-prog-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.3s;}
+.quiz-q{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem;}
+.quiz-q .qnum{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+.quiz-q h3{font-size:16px;font-weight:600;margin-bottom:1.25rem;line-height:1.4;color:#1a1a2e;}
+.quiz-options{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;cursor:pointer;transition:all 0.15s;background:var(--surface);text-align:left;font-family:var(--font);color:#1a1a2e;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;line-height:1.4;}
+.quiz-opt:hover{border-color:var(--accent);background:var(--al);}
+.quiz-opt.selected{border-color:var(--accent);border-width:2px;background:var(--accent);color:#fff;font-weight:500;}
+.quiz-opt .opt-text{flex:1;}
+.quiz-opt .check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;transition:all 0.15s;font-weight:700;}
+.quiz-opt.selected .check{background:#fff;border-color:#fff;color:var(--accent);}
+.quiz-opt:hover .check{border-color:var(--accent);}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:10px;}
+.quiz-results{max-width:640px;margin:0 auto;}
+.result-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+.result-card.top{border-color:var(--accent);border-width:2px;}
+.result-rank{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.result-name{font-size:clamp(18px,4vw,22px);font-weight:600;font-family:var(--serif);margin-bottom:4px;}
+.result-zone{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.result-why{font-size:13px;color:#374151;line-height:1.6;margin-bottom:8px;}
+.result-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.result-tag{font-size:12px;background:var(--bg);padding:4px 10px;border-radius:20px;color:#374151;}
+.result-reasons{font-size:13px;color:#374151;margin-bottom:10px;line-height:1.6;}
+.result-data{background:var(--bg);border-radius:10px;padding:10px;}
+.rdata-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:0.5px solid var(--border);}
+.rdata-row:last-child{border-bottom:none;}
+.rdata-row .lbl{color:var(--muted);}.rdata-row .val{font-weight:500;}
+.no-data-note{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;}
+.compare-selector{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
+.compare-selector h3{font-size:15px;font-weight:600;margin-bottom:1rem;}
+.cmp-selects{display:flex;gap:8px;flex-direction:column;}
+.cmp-selects select{padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);background:var(--surface);color:#1a1a2e;outline:none;width:100%;appearance:auto;min-height:44px;}
+.cmp-selects select:focus{border-color:var(--accent);}
+.compare-table{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ctable{width:100%;border-collapse:collapse;font-size:13px;min-width:360px;}
+.ctable th{padding:10px 12px;text-align:left;font-weight:600;font-size:12px;color:var(--muted);border-bottom:0.5px solid var(--border);white-space:nowrap;}
+.ctable th.ath{font-size:13px;color:#1a1a2e;font-weight:600;word-break:break-word;white-space:normal;min-width:100px;}
+.ctable td{padding:9px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle;}
+.ctable tr:last-child td{border-bottom:none;}
+.ctable tr:hover td{background:var(--bg);}
+.row-lbl{color:var(--muted);font-size:12px;font-weight:500;white-space:nowrap;min-width:120px;}
+.cv{font-weight:500;color:#1a1a2e;}.cv.best{color:#16a34a;font-weight:600;}.cv.worst{color:#dc2626;}
+.no-dc{color:#9ca3af;font-style:italic;font-size:12px;}
+.sdiv{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;padding:10px 12px 4px;background:var(--bg);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+@media(max-width:600px){
+  .app{padding:0 .875rem 3rem;}
+  .step-label{display:none;}
+  .prog-step{gap:0;}
+  .fg{grid-template-columns:1fr;}
+  .hero{padding:1.5rem 0 1.25rem;}
+  .exp-tab{padding:9px 12px;font-size:12px;}
+  .area-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .nudge{flex-direction:column;align-items:flex-start;}
+  .nudge .btn{width:100%;}
+  .form-nav{flex-wrap:wrap;}
+  .form-nav .btn-primary{flex:1;}
+  .sactions .btn{width:100%;}
+}
+@media(max-width:380px){
+  .nav-tab{padding:6px 9px;font-size:12px;}
+  .nav-logo{font-size:17px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="nav">
+  <div class="nav-logo">Bengaluru <span>in Numbers</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('home')">Home</button>
+    <button class="nav-tab" onclick="showScreen('contribute')">Contribute</button>
+    <button class="nav-tab" onclick="showScreen('explore')">Explore</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <h1>Bengaluru,<br><span>area by area.</span></h1>
+    <p>Real data from real residents. Compare neighborhoods on rent, commute, safety, and everyday life — built entirely by the community.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="startContribute()">Share your experience</button>
+      <button class="btn btn-outline" onclick="showScreen('explore')">Explore areas</button>
+    </div>
+  </div>
+  <div class="privacy-banner">
+    <div style="font-size:18px;flex-shrink:0;margin-top:2px;">🔒</div>
+    <div>
+      <h3>Our privacy promise</h3>
+      <ul>
+        <li>No login. No account. No email required — you are completely anonymous</li>
+        <li>No user profiles — we never build a profile on you or track you across sessions</li>
+        <li>No way to trace back to you — your individual response is never shown to anyone, ever</li>
+        <li>No exact numbers exposed — rent and income shown only as ranges and medians</li>
+        <li>No identifying details in comments — all open text reviewed before publishing</li>
+        <li>Data only appears publicly once 5+ people have contributed for that area</li>
+        <li>We don't sell your data — ever, to anyone, for any reason</li>
+      </ul>
+      <p style="font-size:12px;color:#0369a1;margin-top:8px;font-style:italic;">This product runs on trust. We'd rather have fewer responses than compromise a single person's privacy.</p>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="stat-r">—</div><div class="lbl">Responses collected</div></div>
+    <div class="stat-card"><div class="num">45</div><div class="lbl">Areas covered</div></div>
+    <div class="stat-card"><div class="num">100%</div><div class="lbl">Anonymous data</div></div>
+    <div class="stat-card"><div class="num">Free</div><div class="lbl">Always, forever</div></div>
+  </div>
+</div>
+
+<!-- CONTRIBUTE -->
+<div id="screen-contribute" class="screen">
+  <div id="contribute-form">
+    <div style="margin-bottom:1.25rem;">
+      <h2 style="font-family:var(--serif);font-size:clamp(22px,5vw,26px);margin-bottom:6px;">Share your experience</h2>
+      <p style="color:var(--muted);font-size:13px;">Takes ~5 minutes. Fully anonymous. Fields marked <span style="color:var(--err);">*</span> are required.</p>
+    </div>
+    <div class="prog-bar">
+      <div class="prog-step active" id="prog-1"><div class="step-dot"></div><span class="step-label">About you</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="prog-2"><div class="step-dot"></div><span class="step-label">Your home</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="prog-3"><div class="step-dot"></div><span class="step-label">Ratings</span></div>
+      <div class="prog-line"></div>
+      <div class="prog-step" id="prog-4"><div class="step-dot"></div><span class="step-label">Feedback</span></div>
+    </div>
+    <div id="step-1">
+      <div class="form-section">
+        <h2>About you</h2>
+        <div class="sec-desc">Helps others find people like them. Nothing here is shown individually.</div>
+        <div class="fg">
+          <div class="field">
+            <label>Industry <span class="req">*</span></label>
+            <select id="industry" onchange="updateSub()">
+              <option value="">— Select industry —</option>
+              <option>Technology / IT Services</option><option>Fintech</option>
+              <option>E-commerce / D2C</option><option>Healthcare / Pharma / Biotech</option>
+              <option>Education / Edtech</option><option>Media / Content / Gaming</option>
+              <option>Consulting / Professional Services</option><option>BFSI (Banking / Insurance)</option>
+              <option>Manufacturing / Industrial</option><option>Real Estate / Construction</option>
+              <option>Government / PSU</option><option>Startup (early stage)</option>
+              <option>Freelance / Self-employed</option><option>Student</option>
+              <option>Homemaker</option><option>Other</option>
+            </select>
+            <div class="emsg" id="err-industry">Please select your industry</div>
+          </div>
+          <div class="field" id="sub-field" style="display:none;">
+            <label>Specialisation <span class="opt">optional</span></label>
+            <select id="sub-industry"><option value="">— Select —</option></select>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field">
+            <label>Role / function <span class="req">*</span></label>
+            <select id="role-function">
+              <option value="">— Select function —</option>
+              <option>Engineering / Tech</option><option>Product Management</option>
+              <option>Design / UX</option><option>Data / Analytics / ML</option>
+              <option>Business / Strategy</option><option>Sales / GTM</option>
+              <option>Marketing / Growth</option><option>Operations / Supply chain</option>
+              <option>Finance / Accounts / CA</option><option>HR / People / Talent</option>
+              <option>Legal / Compliance</option><option>Research / Academia</option>
+              <option>Founder / Entrepreneur</option><option>Student</option>
+              <option>Homemaker / Caregiver</option><option>Other</option>
+            </select>
+            <div class="emsg" id="err-role">Please select your role</div>
+          </div>
+          <div class="field">
+            <label>Seniority <span class="opt">optional</span></label>
+            <select id="seniority">
+              <option value="">— Select level —</option>
+              <option>Intern / Trainee</option><option>Junior (0–2 yrs)</option>
+              <option>Mid-level (2–5 yrs)</option><option>Senior (5–8 yrs)</option>
+              <option>Lead / Staff / Principal</option><option>Manager</option>
+              <option>Senior Manager</option><option>Director</option>
+              <option>VP / Head of</option><option>C-suite / Founder</option>
+              <option>Not applicable</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field">
+            <label>Age group <span class="req">*</span></label>
+            <select id="age-group">
+              <option value="">— Select —</option>
+              <option>18–24</option><option>25–30</option><option>31–40</option><option>41–50</option><option>50+</option>
+            </select>
+            <div class="emsg" id="err-age">Please select your age group</div>
+          </div>
+          <div class="field">
+            <label>Living situation <span class="req">*</span></label>
+            <select id="living-situation">
+              <option value="">— Select —</option>
+              <option>Living alone</option><option>With roommates</option>
+              <option>With partner (no kids)</option><option>Family with young kids</option>
+              <option>Family with teens</option><option>Joint / extended family</option>
+            </select>
+            <div class="emsg" id="err-living">Please select your living situation</div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field">
+            <label>How long in Bengaluru? <span class="req">*</span></label>
+            <select id="time-in-blr">
+              <option value="">— Select —</option>
+              <option>Less than 6 months</option><option>6 months – 1 year</option>
+              <option>1–3 years</option><option>3–5 years</option>
+              <option>5–10 years</option><option>10+ years</option><option>Born and raised here</option>
+            </select>
+            <div class="emsg" id="err-time">Please select duration</div>
+          </div>
+          <div class="field">
+            <label>Relocated from <span class="opt">optional</span></label>
+            <select id="relocated">
+              <option value="">— Select —</option>
+              <option>No — always lived here</option><option>Yes — from Mumbai</option>
+              <option>Yes — from Delhi / NCR</option><option>Yes — from Hyderabad</option>
+              <option>Yes — from Chennai</option><option>Yes — from Pune</option>
+              <option>Yes — from Kolkata</option><option>Yes — from Ahmedabad</option>
+              <option>Yes — from another metro</option><option>Yes — from a Tier 2 city</option>
+              <option>Yes — from a smaller town</option><option>Yes — from abroad</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field">
+            <label>Monthly income bracket <span class="opt">optional</span></label>
+            <div class="fhint">Never shown individually — only used to group similar people.</div>
+            <select id="income">
+              <option value="">— Prefer not to say —</option>
+              <option>Under ₹30,000</option><option>₹30,000 – ₹60,000</option>
+              <option>₹60,000 – ₹1,00,000</option><option>₹1,00,000 – ₹1,50,000</option>
+              <option>₹1,50,000 – ₹2,00,000</option><option>₹2,00,000 – ₹3,00,000</option>
+              <option>₹3,00,000+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Workplace location <span class="opt">optional</span></label>
+            <select id="workplace">
+              <option value="">— Select —</option>
+              <option value="wfh">Work from home / Remote</option>
+              <option value="outside">Outside Bengaluru</option>
+              <optgroup label="─── Areas in Bengaluru ───" id="workplace-grp"></optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:.875rem;">
+          <label>Primary commute mode <span class="opt">optional</span></label>
+          <div class="chips" id="commute-chips">
+            <div class="chip" onclick="toggleChip(this)">Own car</div><div class="chip" onclick="toggleChip(this)">Bike / scooter</div>
+            <div class="chip" onclick="toggleChip(this)">Metro</div><div class="chip" onclick="toggleChip(this)">BMTC bus</div>
+            <div class="chip" onclick="toggleChip(this)">Auto rickshaw</div><div class="chip" onclick="toggleChip(this)">Cab (Ola / Uber)</div>
+            <div class="chip" onclick="toggleChip(this)">Company shuttle</div><div class="chip" onclick="toggleChip(this)">Cycle</div>
+            <div class="chip" onclick="toggleChip(this)">Walk</div><div class="chip" onclick="toggleChip(this)">Work from home</div>
+          </div>
+        </div>
+      </div>
+      <div class="vmsg" id="val-1">Please fill in all required fields before continuing.</div>
+      <div class="form-nav"><span></span><button class="btn btn-primary" onclick="validateAndNext(2)">Next: Your home →</button></div>
+    </div>
+    <div id="step-2" style="display:none;">
+      <div class="form-section">
+        <h2>Your home</h2>
+        <div class="sec-desc">Builds rent intelligence for each area. All figures shown as ranges — never your exact number.</div>
+        <div class="fg">
+          <div class="field">
+            <label>Area you live in <span class="req">*</span></label>
+            <select id="area-select">
+              <option value="">— Select area —</option>
+              <optgroup label="─── Central ───">
+                <option>Indiranagar</option><option>Domlur</option><option>Old Airport Road</option>
+                <option>Frazer Town</option><option>Shivajinagar</option><option>MG Road / Brigade Road</option>
+                <option>Kammanahalli</option><option>CV Raman Nagar</option>
+              </optgroup>
+              <optgroup label="─── South ───">
+                <option>Koramangala</option><option>HSR Layout</option><option>JP Nagar</option>
+                <option>Jayanagar</option><option>BTM Layout</option><option>Banashankari</option>
+                <option>Bannerghatta Road</option><option>Electronic City</option>
+                <option>Electronic City Phase 2</option><option>Chandapura</option>
+                <option>Kengeri</option><option>Mysore Road</option>
+              </optgroup>
+              <optgroup label="─── North ───">
+                <option>Hebbal</option><option>Yelahanka</option><option>Thanisandra</option>
+                <option>Hennur</option><option>Banaswadi</option><option>RT Nagar</option><option>Mathikere</option>
+              </optgroup>
+              <optgroup label="─── East ───">
+                <option>Whitefield</option><option>Sarjapur Road</option><option>Marathahalli</option>
+                <option>Bellandur</option><option>Varthur</option><option>Kadugodi</option>
+                <option>Dommasandra</option><option>Sarjapur (town)</option>
+              </optgroup>
+              <optgroup label="─── West ───">
+                <option>Malleswaram</option><option>Rajajinagar</option><option>Yeshwanthpur</option>
+                <option>Vijayanagar</option><option>Peenya</option><option>Tumkur Road</option>
+              </optgroup>
+              <optgroup label="─── Outer / Peripheral ───">
+                <option>Devanahalli</option><option>Bagalur</option><option>Hoskote</option><option>Attibele</option>
+              </optgroup>
+            </select>
+            <div class="emsg" id="err-area">Please select your area</div>
+          </div>
+          <div class="field">
+            <label>BHK type <span class="req">*</span></label>
+            <select id="bhk">
+              <option value="">— Select type —</option>
+              <option>PG / Paying guest</option><option>Studio / Bachelor pad</option>
+              <option>1 RK</option><option>1 BHK</option><option>2 BHK</option>
+              <option>3 BHK</option><option>3+ BHK</option><option>Villa / Independent house</option>
+            </select>
+            <div class="emsg" id="err-bhk">Please select BHK type</div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field">
+            <label>Monthly rent (₹) <span class="req">*</span></label>
+            <div class="fhint">Shown only as a range — your exact figure is never visible.</div>
+            <input type="number" id="rent" placeholder="e.g. 25000" min="1000" max="999999"/>
+            <div class="emsg" id="err-rent">Please enter a valid rent (₹1,000 – ₹9,99,999)</div>
+          </div>
+          <div class="field">
+            <label>Furnished status <span class="req">*</span></label>
+            <select id="furnished">
+              <option value="">— Select —</option>
+              <option>Unfurnished</option><option>Semi-furnished</option>
+              <option>Fully furnished</option><option>Luxury furnished</option>
+            </select>
+            <div class="emsg" id="err-furnished">Please select furnished status</div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field"><label>Maintenance (₹/month) <span class="opt">optional</span></label><input type="number" id="maintenance" placeholder="Enter 0 if none" min="0"/></div>
+          <div class="field"><label>Property type <span class="opt">optional</span></label>
+            <select id="property-type"><option value="">— Select —</option><option>Gated society / apartment</option><option>Standalone apartment</option><option>Independent house / villa</option><option>PG / hostel</option><option>Co-living space</option><option>Row house</option></select>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field"><label>Parking <span class="opt">optional</span></label><select id="parking"><option value="">— Select —</option><option>Yes — covered / basement</option><option>Yes — open / stilt</option><option>No parking</option><option>Street parking only</option></select></div>
+          <div class="field"><label>Building age <span class="opt">optional</span></label><select id="building-age"><option value="">— Select —</option><option>New (0–2 yrs)</option><option>2–5 years</option><option>5–10 years</option><option>10–20 years</option><option>20+ years</option></select></div>
+        </div>
+        <div class="field" style="margin-top:.875rem;">
+          <label>Complex amenities <span class="opt">optional</span></label>
+          <div class="chips" id="amenity-chips">
+            <div class="chip" onclick="toggleChip(this)">Gym</div><div class="chip" onclick="toggleChip(this)">Swimming pool</div>
+            <div class="chip" onclick="toggleChip(this)">Clubhouse</div><div class="chip" onclick="toggleChip(this)">Play area</div>
+            <div class="chip" onclick="toggleChip(this)">24/7 security</div><div class="chip" onclick="toggleChip(this)">Power backup</div>
+            <div class="chip" onclick="toggleChip(this)">EV charging</div><div class="chip" onclick="toggleChip(this)">None</div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field"><label>Water supply <span class="opt">optional</span></label><select id="water"><option value="">— Select —</option><option>Daily — consistent</option><option>Mostly reliable</option><option>Alternate days</option><option>Borewell dependent</option><option>Tanker dependent</option></select></div>
+          <div class="field"><label>Power cuts <span class="opt">optional</span></label><select id="power"><option value="">— Select —</option><option>Rarely</option><option>Occasionally</option><option>Weekly</option><option>Frequent</option><option>Daily</option></select></div>
+        </div>
+        <div class="fg" style="margin-top:.875rem;">
+          <div class="field"><label>Internet / fiber <span class="opt">optional</span></label><select id="internet"><option value="">— Select —</option><option>Excellent — multiple providers</option><option>Good — one provider</option><option>Okay — patchy</option><option>Poor</option></select></div>
+          <div class="field"><label>Monsoon flooding <span class="opt">optional</span></label><select id="flooding"><option value="">— Select —</option><option>No — never</option><option>Minor waterlogging</option><option>Moderate — commute disrupted</option><option>Serious flooding</option></select></div>
+        </div>
+        <div class="field" style="margin-top:.875rem;">
+          <label>% of income on rent <span class="opt">optional</span></label>
+          <div class="fhint">Helps readers in similar brackets understand affordability. Never shown individually.</div>
+          <select id="rent-percent"><option value="">— Prefer not to say —</option><option>Under 15%</option><option>15–25%</option><option>25–35%</option><option>35–45%</option><option>Over 45%</option></select>
+        </div>
+      </div>
+      <div class="vmsg" id="val-2">Please fill in all required fields.</div>
+      <div class="form-nav"><button class="btn btn-ghost" onclick="goStep(1)">← Back</button><button class="btn btn-primary" onclick="validateAndNext(3)">Next: Rate the area →</button></div>
+    </div>
+    <div id="step-3" style="display:none;">
+      <div class="form-section">
+        <h2>Rate your area</h2>
+        <div class="sec-desc">1 star = very poor · 5 stars = excellent. Fields marked <span style="color:var(--err)">*</span> required.</div>
+        <div id="ratings-container"></div>
+      </div>
+      <div class="vmsg" id="val-3">Please rate all required fields (*) before continuing.</div>
+      <div class="form-nav"><button class="btn btn-ghost" onclick="goStep(2)">← Back</button><button class="btn btn-primary" onclick="validateAndNext(4)">Next: Final thoughts →</button></div>
+    </div>
+    <div id="step-4" style="display:none;">
+      <div class="form-section">
+        <h2>Final thoughts <span class="opt" style="font-size:13px;">all optional</span></h2>
+        <div class="sec-desc">Please don't mention your building name, employer, or any identifying detail.</div>
+        <div class="field" style="margin-bottom:1rem;"><label>One thing you love about your area</label><textarea id="love-text" placeholder="e.g. Great restaurants, walkable, easy metro access..." style="margin-top:4px;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);resize:vertical;min-height:80px;color:#1a1a2e;outline:none;width:100%;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea></div>
+        <div class="field" style="margin-bottom:1rem;"><label>One thing that could be better</label><textarea id="improve-text" placeholder="e.g. Auto availability after 10pm is terrible, roads flood every monsoon..." style="margin-top:4px;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);resize:vertical;min-height:80px;color:#1a1a2e;outline:none;width:100%;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea></div>
+        <div class="field" style="margin-bottom:1rem;">
+          <label>Best suited for <span class="opt">select all that apply</span></label>
+          <div class="chips" id="suited-chips" style="margin-top:4px;">
+            <div class="chip" onclick="toggleChip(this)">Young professionals</div><div class="chip" onclick="toggleChip(this)">Families with young kids</div>
+            <div class="chip" onclick="toggleChip(this)">Families with teens</div><div class="chip" onclick="toggleChip(this)">Students</div>
+            <div class="chip" onclick="toggleChip(this)">Couples</div><div class="chip" onclick="toggleChip(this)">Expats / NRIs</div>
+            <div class="chip" onclick="toggleChip(this)">Retirees</div><div class="chip" onclick="toggleChip(this)">Everyone</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Would you recommend this area?</label>
+          <div class="chips" id="recommend-chips" style="margin-top:4px;">
+            <div class="chip" onclick="selectSingle(this,'recommend-chips')">Definitely yes</div>
+            <div class="chip" onclick="selectSingle(this,'recommend-chips')">Probably yes</div>
+            <div class="chip" onclick="selectSingle(this,'recommend-chips')">Maybe</div>
+            <div class="chip" onclick="selectSingle(this,'recommend-chips')">Probably not</div>
+            <div class="chip" onclick="selectSingle(this,'recommend-chips')">Definitely not</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-nav"><button class="btn btn-ghost" onclick="goStep(3)">← Back</button><button class="btn btn-primary" id="submit-btn" onclick="submitForm()">Submit →</button></div>
+    </div>
+  </div>
+  <div id="contribute-success" style="display:none;">
+    <div class="success-screen">
+      <div style="font-size:48px;margin-bottom:1rem;">✅</div>
+      <h2>Thank you!</h2>
+      <p>Your experience has been added. You've helped make Bengaluru more navigable for everyone who comes after you.</p>
+      <div class="sactions">
+        <button class="btn btn-primary btn-full" onclick="showExplore()">Explore area data →</button>
+        <button class="btn btn-dark btn-full" onclick="addAnotherArea()">Add another area I know</button>
+        <button class="btn btn-outline btn-full" onclick="showScreen('home')">Back to home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPLORE -->
+<div id="screen-explore" class="screen">
+  <div id="explore-locked" class="locked-box">
+    <div style="font-size:32px;margin-bottom:1rem;">🔓</div>
+    <h3>Contribute to unlock full data</h3>
+    <p>Share your own experience first. This keeps the platform a genuine community.</p>
+    <button class="btn btn-primary" onclick="startContribute()">Share your experience first</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:1rem;">Already contributed? <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="unlockExplore()">Click here to unlock</span></p>
+  </div>
+  <div id="explore-unlocked" style="display:none;">
+    <div class="nudge">
+      <p>You're seeing real community data. <strong style="color:var(--accent);">Know another area?</strong> Add data to help others.</p>
+      <button class="btn btn-primary btn-sm" onclick="addAnotherArea()">Add another area</button>
+    </div>
+    <div class="exp-tabs">
+      <button class="exp-tab active" onclick="switchTab('browse')">Browse areas</button>
+      <button class="exp-tab" onclick="switchTab('quiz')">Best area for me</button>
+      <button class="exp-tab" onclick="switchTab('compare')">Compare</button>
+    </div>
+    <div id="exp-browse">
+      <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <input type="text" id="area-search" placeholder="Search areas..." oninput="filterAreas()" style="padding:10px 14px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);flex:1;min-width:140px;outline:none;min-height:44px;"/>
+        <select id="filter-zone" onchange="filterAreas()" style="padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);min-height:44px;appearance:auto;">
+          <option value="">All zones</option><option value="Central">Central</option><option value="South">South</option>
+          <option value="North">North</option><option value="East">East</option><option value="West">West</option><option value="Outer">Outer</option>
+        </select>
+      </div>
+      <div class="area-grid" id="area-grid"><div class="loading-bar">Loading area data...</div></div>
+    </div>
+    <div id="exp-quiz" style="display:none;">
+      <div id="quiz-intro" class="quiz-wrap">
+        <div style="text-align:center;padding:1.5rem .5rem;">
+          <div style="font-size:36px;margin-bottom:1rem;">🧭</div>
+          <h2 style="font-family:var(--serif);font-size:clamp(22px,5vw,26px);margin-bottom:.75rem;">Find your best area</h2>
+          <p style="color:var(--muted);font-size:15px;max-width:380px;margin:0 auto 1.75rem;line-height:1.7;">Answer 5 quick questions and we'll recommend the top 3 neighborhoods that fit your lifestyle.</p>
+          <button class="btn btn-primary" onclick="startQuiz()">Start the quiz →</button>
+        </div>
+      </div>
+      <div id="quiz-questions" style="display:none;" class="quiz-wrap"></div>
+      <div id="quiz-results" style="display:none;" class="quiz-results"></div>
+    </div>
+    <div id="exp-compare" style="display:none;">
+      <div class="compare-selector">
+        <h3>Select up to 3 areas to compare</h3>
+        <div class="cmp-selects">
+          <select id="cmp-1" onchange="renderCompare()"><option value="">— Area 1 —</option></select>
+          <select id="cmp-2" onchange="renderCompare()"><option value="">— Area 2 —</option></select>
+          <select id="cmp-3" onchange="renderCompare()"><option value="">— Area 3 (optional) —</option></select>
+        </div>
+      </div>
+      <div id="compare-output"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL='https://ltgbfgvyllnisutnsqql.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0Z2JmZ3Z5bGxuaXN1dG5zcXFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1OTI0NjUsImV4cCI6MjA4OTE2ODQ2NX0.W9kVC3o11qYV1UYWfRHQB0IiedLuruOjaslgMrY1tEA';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const AREA_ZONES={"Indiranagar":"Central","Domlur":"Central","Old Airport Road":"Central","Frazer Town":"Central","Shivajinagar":"Central","MG Road / Brigade Road":"Central","Kammanahalli":"Central","CV Raman Nagar":"Central","Koramangala":"South","HSR Layout":"South","JP Nagar":"South","Jayanagar":"South","BTM Layout":"South","Banashankari":"South","Bannerghatta Road":"South","Electronic City":"South","Electronic City Phase 2":"South","Chandapura":"South","Kengeri":"South","Mysore Road":"South","Hebbal":"North","Yelahanka":"North","Thanisandra":"North","Hennur":"North","Banaswadi":"North","RT Nagar":"North","Mathikere":"North","Whitefield":"East","Sarjapur Road":"East","Marathahalli":"East","Bellandur":"East","Varthur":"East","Kadugodi":"East","Dommasandra":"East","Sarjapur (town)":"East","Malleswaram":"West","Rajajinagar":"West","Yeshwanthpur":"West","Vijayanagar":"West","Peenya":"West","Tumkur Road":"West","Devanahalli":"Outer","Bagalur":"Outer","Hoskote":"Outer","Attibele":"Outer"};
+const ALL_AREAS=Object.keys(AREA_ZONES);
+
+const AREA_PROFILE={"Koramangala":{vibe:"Startup hub, nightlife, young professionals",budget:"high",vehicle:"optional",family:false,nightlife:true,tags:["Startup hub","Great nightlife","Metro nearby","Walkable"]},"Indiranagar":{vibe:"Upscale, social scene, central living",budget:"high",vehicle:"optional",family:false,nightlife:true,tags:["Pub street","Trendy cafes","Metro access","Walkable"]},"HSR Layout":{vibe:"Tech workers, calm, family-friendly",budget:"high",vehicle:"helpful",family:true,nightlife:false,tags:["Tech crowd","Family-friendly","Wide roads","Good food"]},"BTM Layout":{vibe:"Budget-friendly, young crowd, lively",budget:"mid",vehicle:"helpful",family:false,nightlife:false,tags:["Affordable","Young crowd","Good connectivity","Markets"]},"Whitefield":{vibe:"IT corridor, expats, gated societies",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["IT hub","Gated societies","Good schools","Expat community"]},"Sarjapur Road":{vibe:"Growing IT corridor, mid-budget",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["IT corridor","New developments","Good value","Growing"]},"Marathahalli":{vibe:"IT workers, practical, budget-friendly",budget:"mid",vehicle:"helpful",family:false,nightlife:false,tags:["Near IT parks","Budget options","Good food","High traffic"]},"Hebbal":{vibe:"North BLR, airport proximity, growing",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["Near airport","Growing area","Flyover access","Residential"]},"JP Nagar":{vibe:"Established south, family-oriented",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Quiet locality","Good schools","Parks","Residential"]},"Jayanagar":{vibe:"Old Bengaluru charm, cultural, families",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Heritage feel","Darshinis","Parks","Established"]},"Bellandur":{vibe:"IT crowd, lakeside, mid-budget",budget:"mid",vehicle:"needed",family:false,nightlife:false,tags:["Near Ecospace","New apartments","Lake nearby","Good value"]},"Malleswaram":{vibe:"Old BLR, cultural, family-centric",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Heritage area","Markets","Temples","Residential"]},"Rajajinagar":{vibe:"West BLR, families, metro access",budget:"mid",vehicle:"helpful",family:true,nightlife:false,tags:["Metro access","Established","Good markets","Family vibe"]},"Banashankari":{vibe:"South, families, affordable residential",budget:"low",vehicle:"helpful",family:true,nightlife:false,tags:["Affordable","Residential","Good schools","South BLR"]},"Electronic City":{vibe:"IT hub, budget rents, far from centre",budget:"low",vehicle:"needed",family:false,nightlife:false,tags:["IT campus zone","Budget rents","Shuttle friendly","Far from centre"]},"Yelahanka":{vibe:"North, calm, spacious, growing",budget:"low",vehicle:"needed",family:true,nightlife:false,tags:["Near airport","Spacious","Affordable","Growing"]},"Hennur":{vibe:"North, growing, mid-budget residential",budget:"mid",vehicle:"needed",family:true,nightlife:false,tags:["Growing area","Good value","Improving connectivity","Residential"]}};
+
+const SUB_IND={"Technology / IT Services":["Product company","IT Services / Outsourcing","SaaS / B2B software","Cybersecurity","AI / ML / Data","Infrastructure / Cloud","Gaming","Semiconductor","Other IT"],"Fintech":["Broking / Wealth Management","Lending / Credit","Payments / Wallets","Insurance Tech","Neo-banking","Personal finance","Crypto / Web3","Regulatory Tech","Other Fintech"],"E-commerce / D2C":["Horizontal marketplace","Vertical marketplace","D2C brand","Logistics / Supply chain","Quick commerce","Social commerce","Other"],"Healthcare / Pharma / Biotech":["Hospital / Clinic","Pharma","Biotech","Health-tech","Mental health","Medical devices","Other"],"Education / Edtech":["School (K–12)","College / University","Edtech platform","Coaching / Test prep","Corporate L&D","Research","Other"],"Media / Content / Gaming":["News / Journalism","OTT / Streaming","Advertising / PR","Content creator","Gaming / Esports","Publishing","Other"],"Consulting / Professional Services":["Management consulting","IT consulting","Legal","Accounting / CA","HR / Recruitment","Other"],"BFSI (Banking / Insurance)":["Retail banking","Investment banking","Insurance (life)","Insurance (general)","Asset management","Broking / Trading","Microfinance","Other"],"Manufacturing / Industrial":["Automotive / EV","Electronics","FMCG / Food","Textiles","Chemicals","Heavy industry","Other"],"Real Estate / Construction":["Residential development","Commercial development","Construction","Property management","PropTech","Infrastructure","Other"],"Government / PSU":["Central government","State government / KAS","PSU","Defence","Local government / BBMP","Other"],"Startup (early stage)":["Pre-revenue / Idea stage","Pre-seed / Seed","Series A","Stealth"],"Freelance / Self-employed":["Freelance tech","Freelance design","Freelance writing","Consulting (independent)","Gig / delivery","Other"]};
+
+const RATINGS=[{key:"commute",label:"Commute convenience",req:true},{key:"auto_cab",label:"Auto / cab availability",req:true},{key:"walkability",label:"Walkability for daily errands",req:true},{key:"grocery",label:"Grocery & market access",req:true},{key:"hospital",label:"Hospital / clinic access",req:true},{key:"schools",label:"School access",req:false},{key:"traffic",label:"Traffic during peak hours (1=worst)",req:true},{key:"safety_day",label:"Safety during the day",req:true},{key:"safety_night",label:"Safety at night",req:true},{key:"lighting",label:"Street lighting at night",req:false},{key:"air_quality",label:"Air quality (1=most polluted)",req:false},{key:"noise",label:"Noise levels (1=very noisy)",req:false},{key:"greenery",label:"Greenery & parks",req:false},{key:"food_dining",label:"Food & dining options",req:true},{key:"nightlife",label:"Nightlife & social scene",req:false},{key:"public_transport",label:"Public transport options",req:false},{key:"overall",label:"Overall rating",req:true}];
+
+const QUIZ_QS=[{id:"workplace",q:"Where do you work in Bengaluru?",opts:["Central (MG Road, Indiranagar, Domlur)","South (Koramangala, HSR, JP Nagar, Electronic City)","East (Whitefield, Marathahalli, Sarjapur Road)","North (Hebbal, Yelahanka, Thanisandra)","West (Malleswaram, Rajajinagar, Yeshwanthpur)","Work from home / Remote","Outside Bengaluru"]},{id:"budget",q:"What's your monthly rent budget?",opts:["Under ₹15,000","₹15,000 – ₹25,000","₹25,000 – ₹40,000","₹40,000 – ₹60,000","₹60,000+"]},{id:"bhk",q:"What BHK are you looking for?",opts:["PG / Studio / 1RK","1 BHK","2 BHK","3 BHK or more"]},{id:"priority",q:"What matters most to you?",opts:["Short commute / easy to get around","Safety — day and night","Nightlife, cafes & social scene","Family-friendly (schools, parks, safety)","Affordable rent — best value","Green, peaceful neighbourhood"]},{id:"vehicle",q:"Do you have a personal vehicle?",opts:["Yes — car","Yes — bike / scooter","Both car and bike","No vehicle — public transport only"]}];
+
+let formData={},isUnlocked=false,quizAnswers={},quizStep=0,cachedResponses=null;
+
+// ── INIT ──
+async function init(){
+  const wg=document.getElementById('workplace-grp');
+  if(wg)ALL_AREAS.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;wg.appendChild(o);});
+  ['cmp-1','cmp-2','cmp-3'].forEach(id=>{const s=document.getElementById(id);if(!s)return;ALL_AREAS.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;s.appendChild(o);});});
+  buildRatings();
+  if(localStorage.getItem('blr_unlocked')==='1')isUnlocked=true;
+  await loadStats();
+}
+
+// ── SUPABASE DATA ──
+async function loadStats(){
+  try{
+    const{count}=await sb.from('responses').select('*',{count:'exact',head:true});
+    const el=document.getElementById('stat-r');
+    if(el)el.textContent=count||0;
+  }catch(e){const el=document.getElementById('stat-r');if(el)el.textContent='0';}
+}
+
+async function fetchResponses(){
+  if(cachedResponses)return cachedResponses;
+  try{
+    const{data,error}=await sb.from('responses').select('area,bhk,rent,ratings,water,internet');
+    if(error)throw error;
+    cachedResponses=data||[];
+    return cachedResponses;
+  }catch(e){return[];}
+}
+
+function invalidateCache(){cachedResponses=null;}
+
+// ── FORM HELPERS ──
+function buildRatings(){const c=document.getElementById('ratings-container');if(!c)return;c.innerHTML=RATINGS.map(r=>`<div class="rating-row"><div class="rlbl">${r.label}${r.req?'<span class="rr">*</span>':''}</div><div class="stars" id="stars-${r.key}">${[1,2,3,4,5].map(i=>`<span class="star" onclick="setRating('${r.key}',${i})">★</span>`).join('')}</div></div>`).join('');}
+function setRating(key,val){formData['rating_'+key]=val;document.querySelectorAll(`#stars-${key} .star`).forEach((s,i)=>s.classList.toggle('lit',i<val));}
+function updateSub(){const ind=document.getElementById('industry').value;const field=document.getElementById('sub-field');const sel=document.getElementById('sub-industry');if(SUB_IND[ind]){field.style.display='flex';sel.innerHTML='<option value="">— Select —</option>';SUB_IND[ind].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});}else field.style.display='none';}
+function toggleChip(el){el.classList.toggle('selected');}
+function selectSingle(el,gid){document.querySelectorAll(`#${gid} .chip`).forEach(c=>c.classList.remove('selected'));el.classList.add('selected');}
+function setErr(fid,eid,show,msg){const f=document.getElementById(fid);const e=document.getElementById(eid);if(f)f.classList.toggle('ef',show);if(e){e.classList.toggle('show',show);if(msg)e.textContent=msg;}}
+function validateStep1(){const checks=[['industry','err-industry'],['role-function','err-role'],['age-group','err-age'],['living-situation','err-living'],['time-in-blr','err-time']];let ok=true;checks.forEach(([f,e])=>{const bad=!document.getElementById(f).value;setErr(f,e,bad);if(bad)ok=false;});return ok;}
+function validateStep2(){let ok=true;[['area-select','err-area'],['bhk','err-bhk'],['furnished','err-furnished']].forEach(([f,e])=>{const bad=!document.getElementById(f).value;setErr(f,e,bad);if(bad)ok=false;});const rv=document.getElementById('rent').value;const rn=parseInt(rv);const badR=!rv||isNaN(rn)||rn<1000||rn>999999;setErr('rent','err-rent',badR);if(badR)ok=false;return ok;}
+function validateStep3(){return RATINGS.filter(r=>r.req).every(r=>(formData['rating_'+r.key]||0)>0);}
+function validateAndNext(step){let ok=true;if(step===2)ok=validateStep1();else if(step===3)ok=validateStep2();else if(step===4)ok=validateStep3();const vm=document.getElementById('val-'+(step-1));if(vm)vm.classList.toggle('show',!ok);if(ok)goStep(step);else window.scrollTo(0,0);}
+function goStep(step){[1,2,3,4].forEach(s=>{const el=document.getElementById('step-'+s);if(el)el.style.display=s===step?'block':'none';const p=document.getElementById('prog-'+s);if(p){p.classList.remove('active','done');if(s<step)p.classList.add('done');else if(s===step)p.classList.add('active');}});window.scrollTo(0,0);}
+function getChips(id){return Array.from(document.querySelectorAll(`#${id} .chip.selected`)).map(c=>c.textContent.trim());}
+
+// ── SUBMIT TO SUPABASE ──
+async function submitForm(){
+  const btn=document.getElementById('submit-btn');
+  btn.textContent='Submitting...';btn.classList.add('btn-disabled');
+  const ratings={};
+  RATINGS.forEach(r=>{ratings[r.key]=formData['rating_'+r.key]||0;});
+  const entry={
+    area:document.getElementById('area-select').value,
+    bhk:document.getElementById('bhk').value,
+    rent:parseInt(document.getElementById('rent').value)||0,
+    furnished:document.getElementById('furnished').value,
+    maintenance:parseInt(document.getElementById('maintenance').value)||0,
+    property_type:document.getElementById('property-type').value,
+    parking:document.getElementById('parking').value,
+    building_age:document.getElementById('building-age').value,
+    water:document.getElementById('water').value,
+    power:document.getElementById('power').value,
+    internet:document.getElementById('internet').value,
+    flooding:document.getElementById('flooding').value,
+    rent_percent:document.getElementById('rent-percent').value,
+    industry:document.getElementById('industry').value,
+    sub_industry:document.getElementById('sub-industry').value,
+    role:document.getElementById('role-function').value,
+    seniority:document.getElementById('seniority').value,
+    age_group:document.getElementById('age-group').value,
+    living:document.getElementById('living-situation').value,
+    time_in_blr:document.getElementById('time-in-blr').value,
+    relocated:document.getElementById('relocated').value,
+    income_bracket:document.getElementById('income').value,
+    workplace:document.getElementById('workplace').value,
+    commute:getChips('commute-chips'),
+    amenities:getChips('amenity-chips'),
+    suited_for:getChips('suited-chips'),
+    recommend:getChips('recommend-chips')[0]||'',
+    love:document.getElementById('love-text').value.trim(),
+    improve:document.getElementById('improve-text').value.trim(),
+    ratings
+  };
+  try{
+    const{error}=await sb.from('responses').insert(entry);
+    if(error)throw error;
+    invalidateCache();
+    isUnlocked=true;
+    localStorage.setItem('blr_unlocked','1');
+    await loadStats();
+    document.getElementById('contribute-form').style.display='none';
+    document.getElementById('contribute-success').style.display='block';
+    showToast('Response saved! Thank you 🙏');
+  }catch(e){
+    btn.textContent='Submit →';btn.classList.remove('btn-disabled');
+    showToast('Something went wrong. Please try again.');
+    console.error(e);
+  }
+}
+
+// ── TOAST ──
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+// ── NAVIGATION ──
+function showExplore(){isUnlocked=true;showScreen('explore');document.getElementById('explore-locked').style.display='none';document.getElementById('explore-unlocked').style.display='block';renderAreaGrid();}
+function unlockExplore(){isUnlocked=true;document.getElementById('explore-locked').style.display='none';document.getElementById('explore-unlocked').style.display='block';renderAreaGrid();}
+function addAnotherArea(){document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';['area-select','bhk','furnished','maintenance','property-type','parking','building-age','water','power','internet','flooding','rent-percent'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('rent').value='';document.getElementById('love-text').value='';document.getElementById('improve-text').value='';document.querySelectorAll('#amenity-chips .chip,#suited-chips .chip,#recommend-chips .chip').forEach(c=>c.classList.remove('selected'));formData={};buildRatings();const btn=document.getElementById('submit-btn');if(btn){btn.textContent='Submit →';btn.classList.remove('btn-disabled');}goStep(2);showScreen('contribute');}
+function startContribute(){showScreen('contribute');document.getElementById('contribute-form').style.display='block';document.getElementById('contribute-success').style.display='none';goStep(1);}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',['home','contribute','explore'][i]===name));if(name==='explore'){const u=isUnlocked||localStorage.getItem('blr_unlocked')==='1';document.getElementById('explore-locked').style.display=u?'none':'block';document.getElementById('explore-unlocked').style.display=u?'block':'none';if(u)renderAreaGrid();}}
+function switchTab(tab){document.querySelectorAll('.exp-tab').forEach((t,i)=>t.classList.toggle('active',['browse','quiz','compare'][i]===tab));document.getElementById('exp-browse').style.display=tab==='browse'?'block':'none';document.getElementById('exp-quiz').style.display=tab==='quiz'?'block':'none';document.getElementById('exp-compare').style.display=tab==='compare'?'block':'none';if(tab==='browse')renderAreaGrid();}
+
+// ── AREA GRID ──
+function getBadge(n){if(n===0)return{label:'No data yet',cls:'b-none'};if(n<5)return{label:'🔴 Early data',cls:'b-early'};if(n<11)return{label:'🟡 Growing',cls:'b-growing'};if(n<26)return{label:'🟢 Reliable',cls:'b-reliable'};if(n<51)return{label:'🔵 Strong',cls:'b-strong'};return{label:'⭐ Verified',cls:'b-verified'};}
+
+async function renderAreaGrid(search='',zone=''){
+  const grid=document.getElementById('area-grid');if(!grid)return;
+  grid.innerHTML='<div class="loading-bar">Loading...</div>';
+  const responses=await fetchResponses();
+  const filtered=ALL_AREAS.filter(a=>a.toLowerCase().includes(search.toLowerCase())&&(!zone||AREA_ZONES[a]===zone));
+  if(!filtered.length){grid.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">No areas match your filter.</p>';return;}
+  grid.innerHTML=filtered.map(area=>{
+    const ar=responses.filter(r=>r.area===area);const n=ar.length;const badge=getBadge(n);const hasData=n>=5;
+    let rentInfo='Be the first to contribute',bhkInfo='',scoreInfo='';
+    if(n>0&&n<5)rentInfo=`${n} response${n>1?'s':''} — ${5-n} more needed`;
+    if(hasData){
+      const rents=ar.filter(r=>r.rent>0).map(r=>r.rent);
+      if(rents.length)rentInfo=`₹${Math.round(Math.min(...rents)/1000)}k–₹${Math.round(Math.max(...rents)/1000)}k/mo`;
+      const bhks={};ar.forEach(r=>{if(r.bhk)bhks[r.bhk]=(bhks[r.bhk]||0)+1;});
+      const top=Object.entries(bhks).sort((a,b)=>b[1]-a[1])[0];if(top)bhkInfo=top[0];
+      const sc=ar.filter(r=>r.ratings&&r.ratings.overall>0).map(r=>r.ratings.overall);
+      if(sc.length)scoreInfo=(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1)+' ★';
+    }
+    const dotC=n>=5?'#16a34a':n>0?'#f59e0b':'#d1d5db';
+    return`<div class="area-card"><div class="area-top"><div class="area-name">${area}</div><div class="cbadge ${badge.cls}">${badge.label}</div></div><div class="area-zone">${AREA_ZONES[area]} Bengaluru</div><div class="astats"><div class="astat${hasData?'':' blurred'}">${rentInfo}</div>${bhkInfo?`<div class="astat">${bhkInfo}</div>`:''}${scoreInfo?`<div class="astat">${scoreInfo}</div>`:''}</div><div class="resp-count"><span class="dot" style="background:${dotC};"></span>${n} response${n!==1?'s':''}</div></div>`;
+  }).join('');
+}
+
+async function filterAreas(){await renderAreaGrid(document.getElementById('area-search').value,document.getElementById('filter-zone').value);}
+
+// ── QUIZ ──
+function startQuiz(){quizAnswers={};quizStep=0;document.getElementById('quiz-intro').style.display='none';document.getElementById('quiz-questions').style.display='block';document.getElementById('quiz-results').style.display='none';renderQuizStep();}
+function renderQuizStep(){const q=QUIZ_QS[quizStep];const pct=Math.round((quizStep/QUIZ_QS.length)*100);const hasAnswer=!!quizAnswers[q.id];document.getElementById('quiz-questions').innerHTML=`<div class="quiz-prog"><div class="quiz-prog-fill" style="width:${pct}%"></div></div><div class="quiz-q"><div class="qnum">Question ${quizStep+1} of ${QUIZ_QS.length}</div><h3>${q.q}</h3><div class="quiz-options">${q.opts.map(o=>{const sel=quizAnswers[q.id]===o;return`<button class="quiz-opt${sel?' selected':''}" onclick="selectQuizOpt('${q.id}',this)" data-val="${o}"><span class="opt-text">${o}</span><span class="check">${sel?'✓':''}</span></button>`;}).join('')}</div></div><div class="quiz-nav">${quizStep>0?`<button class="btn btn-ghost" onclick="quizBack()">← Back</button>`:`<span></span>`}<button class="btn btn-primary${hasAnswer?'':' btn-disabled'}" id="quiz-next-btn" onclick="quizNext()">${quizStep===QUIZ_QS.length-1?'See results →':'Next →'}</button></div>`;}
+function selectQuizOpt(id,el){const val=el.getAttribute('data-val');quizAnswers[id]=val;document.querySelectorAll('.quiz-opt').forEach(b=>{const s=b.getAttribute('data-val')===val;b.classList.toggle('selected',s);b.querySelector('.check').textContent=s?'✓':'';});const nb=document.getElementById('quiz-next-btn');if(nb)nb.classList.remove('btn-disabled');}
+function quizNext(){if(!quizAnswers[QUIZ_QS[quizStep].id])return;if(quizStep<QUIZ_QS.length-1){quizStep++;renderQuizStep();}else showQuizResults();}
+function quizBack(){if(quizStep>0){quizStep--;renderQuizStep();}}
+function resetQuiz(){quizAnswers={};quizStep=0;document.getElementById('quiz-intro').style.display='block';document.getElementById('quiz-questions').style.display='none';document.getElementById('quiz-results').style.display='none';}
+function scoreArea(area,answers,rd){let score=0;const p=AREA_PROFILE[area];if(!p)return{score:0,reasons:[]};const reasons=[];const wpZoneMap={'Central (MG Road, Indiranagar, Domlur)':'Central','South (Koramangala, HSR, JP Nagar, Electronic City)':'South','East (Whitefield, Marathahalli, Sarjapur Road)':'East','North (Hebbal, Yelahanka, Thanisandra)':'North','West (Malleswaram, Rajajinagar, Yeshwanthpur)':'West'};const wpZone=wpZoneMap[answers.workplace];const aZone=AREA_ZONES[area];if(answers.workplace&&answers.workplace.includes('home')){score+=20;reasons.push('WFH — commute not a constraint');}else if(wpZone===aZone){score+=25;reasons.push('Same zone as your workplace');}else if(aZone==='Central')score+=8;const bScore={'low':{'Under ₹15,000':25,'₹15,000 – ₹25,000':15},'mid':{'₹15,000 – ₹25,000':20,'₹25,000 – ₹40,000':22,'₹40,000 – ₹60,000':10},'high':{'₹40,000 – ₹60,000':22,'₹60,000+':25,'₹25,000 – ₹40,000':8}};const bs=(bScore[p.budget]||{})[answers.budget]||0;if(bs>=20)reasons.push('Fits your budget well');score+=bs;if(answers.priority==='Nightlife, cafes & social scene'&&p.nightlife){score+=22;reasons.push('Known for its nightlife & cafe scene');}if(answers.priority==='Family-friendly (schools, parks, safety)'&&p.family){score+=22;reasons.push('Well-regarded for families');}if(answers.priority==='Affordable rent — best value'&&p.budget==='low'){score+=22;reasons.push('Among the more affordable areas');}if(answers.priority==='Short commute / easy to get around'&&['Central','South'].includes(aZone))score+=12;if(answers.vehicle&&answers.vehicle.includes('No vehicle')&&p.vehicle==='needed')score-=18;if(answers.vehicle&&answers.vehicle.includes('No vehicle')&&p.vehicle==='optional'){score+=10;reasons.push('Walkable with good auto / metro access');}if(rd&&rd.overall){score+=rd.overall*2;if(rd.overall>=4)reasons.push(`Rated ${rd.overall.toFixed(1)}/5 by residents`);}return{score,reasons:reasons.slice(0,3)};}
+
+async function showQuizResults(){
+  document.getElementById('quiz-questions').style.display='none';
+  document.getElementById('quiz-results').innerHTML='<div class="loading-bar">Finding your best areas...</div>';
+  document.getElementById('quiz-results').style.display='block';
+  const responses=await fetchResponses();
+  const rdMap={};
+  ALL_AREAS.forEach(area=>{const ar=responses.filter(r=>r.area===area);if(ar.length>=5){const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};rdMap[area]={overall:avg('overall'),safety_day:avg('safety_day'),commute:avg('commute'),count:ar.length};}});
+  const scored=Object.keys(AREA_PROFILE).map(area=>({area,...scoreArea(area,quizAnswers,rdMap[area]||null)})).sort((a,b)=>b.score-a.score).slice(0,3);
+  document.getElementById('quiz-results').innerHTML=`<div style="margin-bottom:1.25rem;"><h2 style="font-family:var(--serif);font-size:clamp(20px,5vw,24px);margin-bottom:6px;">Your top 3 areas</h2><p style="color:var(--muted);font-size:13px;">${Object.keys(rdMap).length>0?'Boosted by real community data where available.':'Using smart matching — improves as community data grows.'}</p></div>${scored.map((s,i)=>{const p=AREA_PROFILE[s.area];const rd=rdMap[s.area];const labels=['Top pick','Runner up','Also consider'];return`<div class="result-card${i===0?' top':''}"><div class="result-rank">${labels[i]}</div><div class="result-name">${s.area}</div><div class="result-zone">${AREA_ZONES[s.area]} Bengaluru</div><div class="result-why">${p.vibe}</div><div class="result-tags">${(p.tags||[]).map(t=>`<span class="result-tag">${t}</span>`).join('')}</div>${s.reasons.length?`<div class="result-reasons">Why it fits: ${s.reasons.join(' · ')}</div>`:''}<div class="result-data">${rd?`<div class="rdata-row"><span class="lbl">Overall</span><span class="val">${rd.overall.toFixed(1)} / 5 ★</span></div><div class="rdata-row"><span class="lbl">Commute</span><span class="val">${rd.commute.toFixed(1)} / 5</span></div><div class="rdata-row"><span class="lbl">Safety (day)</span><span class="val">${rd.safety_day.toFixed(1)} / 5</span></div><div class="rdata-row"><span class="lbl">Based on</span><span class="val">${rd.count} responses</span></div>`:`<p class="no-data-note">No community data yet. Be one of the first to contribute for this area.</p>`}</div></div>`;}).join('')}<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;"><button class="btn btn-primary" onclick="startContribute()">Contribute for one of these areas</button><button class="btn btn-outline" onclick="resetQuiz()">Retake quiz</button></div>`;
+}
+
+// ── COMPARE ──
+async function renderCompare(){
+  const areas=['cmp-1','cmp-2','cmp-3'].map(id=>document.getElementById(id).value).filter(Boolean);
+  const out=document.getElementById('compare-output');
+  if(areas.length<2){out.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">Select at least 2 areas to compare.</p>';return;}
+  out.innerHTML='<div class="loading-bar">Loading comparison data...</div>';
+  const responses=await fetchResponses();
+  const areaData=areas.map(area=>{const ar=responses.filter(r=>r.area===area);const n=ar.length;const hasData=n>=5;const avg=key=>{const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};const rents=ar.filter(r=>r.rent>0).map(r=>r.rent);const mode=key=>{const m={};ar.forEach(r=>{if(r[key])m[r[key]]=(m[r[key]]||0)+1;});const t=Object.entries(m).sort((a,b)=>b[1]-a[1])[0];return t?t[0]:null;};return{area,n,hasData,rent_min:rents.length?Math.min(...rents):null,rent_max:rents.length?Math.max(...rents):null,rent_med:rents.length?Math.round(rents.sort((a,b)=>a-b)[Math.floor(rents.length/2)]/1000)*1000:null,bhk_common:mode('bhk'),overall:avg('overall'),commute:avg('commute'),auto_cab:avg('auto_cab'),walkability:avg('walkability'),safety_day:avg('safety_day'),safety_night:avg('safety_night'),food_dining:avg('food_dining'),air_quality:avg('air_quality'),traffic:avg('traffic'),greenery:avg('greenery'),water:mode('water'),internet:mode('internet')};});
+  function bw(key,hi=true){const v=areaData.map(d=>d[key]).filter(x=>x!==null);if(v.length<2)return{};const b=hi?Math.max(...v):Math.min(...v);const w=hi?Math.min(...v):Math.max(...v);return{best:b,worst:w};}
+  function cls(v,bwObj,hi=true){if(v===null||!bwObj.best)return'cv';if(v===bwObj.best)return'cv best';if(v===bwObj.worst)return'cv worst';return'cv';}
+  function st(v){if(!v)return'';const f=Math.round(v);return'★'.repeat(f)+'☆'.repeat(5-f);}
+  const rows=[{section:'Overview'},{label:'Zone',render:d=>`<td style="color:var(--muted);font-size:12px;">${AREA_ZONES[d.area]}</td>`},{label:'Responses',render:d=>`<td>${d.n}</td>`},{label:'Overall',key:'overall',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{section:'Rent'},{label:'Rent range',render:d=>d.hasData&&d.rent_min?`<td><span class="cv">₹${Math.round(d.rent_min/1000)}k–₹${Math.round(d.rent_max/1000)}k</span></td>`:`<td><span class="no-dc">No data</span></td>`},{label:'Median rent',render:d=>d.hasData&&d.rent_med?`<td><span class="cv">~₹${(d.rent_med/1000).toFixed(0)}k</span></td>`:`<td><span class="no-dc">No data</span></td>`},{label:'Top BHK',render:d=>d.hasData&&d.bhk_common?`<td style="font-size:12px;">${d.bhk_common}</td>`:`<td><span class="no-dc">No data</span></td>`},{section:'Liveability'},{label:'Commute',key:'commute',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Auto / cab',key:'auto_cab',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Walkability',key:'walkability',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Traffic',key:'traffic',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Safety (day)',key:'safety_day',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Safety (night)',key:'safety_night',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Food & dining',key:'food_dining',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{label:'Greenery',key:'greenery',fmt:v=>`${st(v)} ${v.toFixed(1)}`,hi:true},{section:'Infrastructure'},{label:'Water',render:d=>d.hasData&&d.water?`<td style="font-size:12px;">${d.water.split(' ')[0]}</td>`:`<td><span class="no-dc">No data</span></td>`},{label:'Internet',render:d=>d.hasData&&d.internet?`<td style="font-size:12px;">${d.internet.split(' — ')[0]}</td>`:`<td><span class="no-dc">No data</span></td>`}];
+  let html=`<div class="compare-table"><table class="ctable"><thead><tr><th style="min-width:100px;"></th>${areaData.map(d=>`<th class="ath">${d.area}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(row=>{if(row.section){html+=`<tr><td colspan="${areaData.length+1}" class="sdiv">${row.section}</td></tr>`;}else if(row.render){html+=`<tr><td class="row-lbl">${row.label}</td>${areaData.map(d=>row.render(d)).join('')}</tr>`;}else if(row.key){const bwObj=bw(row.key,row.hi);html+=`<tr><td class="row-lbl">${row.label}</td>${areaData.map(d=>{if(!d.hasData)return`<td><span class="no-dc">No data</span></td>`;const v=d[row.key];if(v===null)return`<td><span class="no-dc">—</span></td>`;return`<td><span class="${cls(v,bwObj,row.hi)}">${row.fmt(v)}</span></td>`;}).join('')}</tr>`;}});
+  html+=`</tbody></table></div>`;
+  if(areaData.some(d=>!d.hasData))html+=`<p style="font-size:12px;color:var(--muted);margin-top:1rem;font-style:italic;">Areas showing "No data" need 5+ responses. <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addAnotherArea()">Contribute →</span></p>`;
+  out.innerHTML=html;
+}
+
+init();
+</script>
+</body>
+</html>
