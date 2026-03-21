@@ -94,8 +94,62 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
 .nudge{background:#fff7f5;border:1px solid #fbd5c5;border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .nudge p{font-size:14px;line-height:1.6;flex:1;}
 .area-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
-.area-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;transition:all 0.2s;}
-.area-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.area-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;transition:all 0.2s;cursor:pointer;}
+.area-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 16px rgba(232,93,38,0.12);}
+.area-card-score{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);}
+.area-card-score .big-score{font-size:20px;font-weight:600;color:var(--accent);}
+.area-card-score .score-label{font-size:12px;color:var(--muted);}
+.area-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.area-card-tag{font-size:11px;background:var(--bg);padding:3px 8px;border-radius:20px;color:var(--muted);}
+
+/* Area detail page */
+.area-detail{display:none;}
+.area-detail.active{display:block;}
+.detail-back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:var(--font);padding:0;margin-bottom:1.25rem;transition:color 0.2s;}
+.detail-back:hover{color:var(--accent);}
+.detail-hero{background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;}
+.detail-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:1.25rem;}
+.detail-name{font-family:var(--serif);font-size:clamp(22px,5vw,30px);margin-bottom:4px;}
+.detail-zone{font-size:13px;color:var(--muted);}
+.detail-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
+.dm{background:var(--bg);border-radius:10px;padding:12px;}
+.dm .dl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.dm .dv{font-size:20px;font-weight:600;color:var(--accent);}
+.dm .ds{font-size:11px;color:var(--muted);margin-top:2px;}
+.detail-section{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
+.detail-section h3{font-size:14px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;}
+.rating-bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);}
+.rating-bar-row:last-child{border-bottom:none;}
+.rb-label{font-size:13px;flex:1;min-width:0;}
+.rb-bar-wrap{width:100px;background:var(--border);border-radius:4px;height:6px;flex-shrink:0;}
+.rb-bar{height:100%;border-radius:4px;background:var(--accent);}
+.rb-score{font-size:13px;font-weight:500;min-width:28px;text-align:right;}
+.rb-score.high{color:#16a34a;}
+.rb-score.mid{color:#92400e;}
+.rb-score.low{color:#dc2626;}
+.rent-bhk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;}
+.rent-bhk-card{background:var(--bg);border-radius:10px;padding:12px;}
+.rent-bhk-card .bhk-type{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.rent-bhk-card .bhk-range{font-size:14px;font-weight:500;}
+.rent-bhk-card .bhk-median{font-size:11px;color:var(--muted);margin-top:3px;}
+.who-bar-row{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.who-bar-row .wl{font-size:13px;flex:1;}
+.who-bw{width:80px;background:var(--border);border-radius:3px;height:5px;flex-shrink:0;}
+.who-bf{height:100%;border-radius:3px;background:var(--accent);}
+.who-pct{font-size:12px;color:var(--muted);min-width:32px;text-align:right;}
+.who-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:500px){.who-grid-2{grid-template-columns:1fr;}}
+.infra-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
+.infra-row:last-child{border-bottom:none;}
+.infra-label{color:var(--muted);}
+.infra-val{font-weight:500;}
+.infra-val.good{color:#16a34a;}
+.infra-val.ok{color:#92400e;}
+.infra-val.bad{color:#dc2626;}
+.no-data-section{text-align:center;padding:2rem;color:var(--muted);font-size:14px;font-style:italic;}
+.detail-contribute-cta{background:#fff7f5;border:1px solid #fbd5c5;border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:1rem;}
+.detail-contribute-cta p{font-size:14px;line-height:1.6;flex:1;}
+.resp-note-detail{font-size:12px;color:var(--muted);margin-bottom:1rem;font-style:italic;}
 .area-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
 .area-name{font-size:15px;font-weight:600;}
 .cbadge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;flex-shrink:0;}
@@ -549,6 +603,11 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
       <button class="exp-tab" onclick="switchTab('compare')">Compare</button>
     </div>
     <div id="exp-browse">
+  <div id="area-detail" class="area-detail">
+    <button class="detail-back" onclick="closeAreaDetail()">← Back to all areas</button>
+    <div id="area-detail-content"></div>
+  </div>
+  <div id="area-browse-list" style="display:block;">
       <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;">
         <input type="text" id="area-search" placeholder="Search areas..." oninput="filterAreas()" style="padding:10px 14px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);flex:1;min-width:140px;outline:none;min-height:44px;"/>
         <select id="filter-zone" onchange="filterAreas()" style="padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font);min-height:44px;appearance:auto;">
@@ -558,6 +617,7 @@ body{font-family:var(--font);background:var(--bg);color:#1a1a2e;min-height:100vh
       </div>
       <div class="area-grid" id="area-grid"><div class="loading-bar">Loading area data...</div></div>
     </div>
+  </div>
     <div id="exp-quiz" style="display:none;">
       <div id="quiz-intro" class="quiz-wrap">
         <div style="text-align:center;padding:1.5rem .5rem;">
@@ -607,6 +667,178 @@ const QUIZ_QS=[{id:"workplace",q:"Where do you work in Bengaluru?",opts:["Centra
 let formData={},isUnlocked=false,quizAnswers={},quizStep=0,cachedResponses=null;
 
 // ── INIT ──
+function contributeForArea(area){
+  startContribute();
+  setTimeout(()=>{
+    const sel=document.getElementById('area-select');
+    if(sel)sel.value=area;
+    goStep(2);
+  },50);
+}
+function openAreaDetail(area){
+  document.getElementById('area-browse-list').style.display='none';
+  document.getElementById('area-detail').classList.add('active');
+  document.getElementById('area-detail-content').innerHTML='<div class="loading-bar">Loading data for '+area+'...</div>';
+  window.scrollTo(0,0);
+  renderAreaDetail(area);
+}
+
+function closeAreaDetail(){
+  document.getElementById('area-detail').classList.remove('active');
+  document.getElementById('area-browse-list').style.display='block';
+  window.scrollTo(0,0);
+}
+
+async function renderAreaDetail(area){
+  const responses=await fetchResponses();
+  const ar=responses.filter(r=>r.area===area);
+  const n=ar.length;
+  const hasData=n>=3;
+  const zone=AREA_ZONES[area]||'Bengaluru';
+
+  function avg(key){const v=ar.filter(r=>r.ratings&&r.ratings[key]>0).map(r=>r.ratings[key]);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;}
+  function mode(key){const m={};ar.forEach(r=>{if(r[key])m[r[key]]=(m[r[key]]||0)+1;});const t=Object.entries(m).sort((a,b)=>b[1]-a[1])[0];return t?t[0]:null;}
+  function pct(filterFn){return ar.length?Math.round(ar.filter(filterFn).length/ar.length*100):0;}
+  function scoreClass(v){return v>=4?'high':v>=3?'mid':'low';}
+  function barWidth(v){return Math.round(v/5*100);}
+
+  const overallAvg=avg('overall');
+  const recommendPct=pct(r=>r.recommend&&(r.recommend.toLowerCase().includes('yes')));
+  const badge=getBadge(n);
+
+  // Rent by BHK
+  const bhkTypes=['PG / Paying guest','Studio / Bachelor pad','1 RK','1 BHK','2 BHK','3 BHK','3+ BHK','Villa / Independent house'];
+  const rentByBhk=bhkTypes.map(bhk=>{
+    const rents=ar.filter(r=>r.bhk===bhk&&r.rent>0).map(r=>r.rent);
+    if(!rents.length)return null;
+    rents.sort((a,b)=>a-b);
+    return{bhk,min:Math.min(...rents),max:Math.max(...rents),median:rents[Math.floor(rents.length/2)],count:rents.length};
+  }).filter(Boolean);
+
+  // Profession breakdown
+  const profMap={};ar.forEach(r=>{if(r.industry){const k=r.industry.split('/')[0].trim();profMap[k]=(profMap[k]||0)+1;}});
+  const profTop=Object.entries(profMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>({l:k,p:Math.round(v/ar.length*100)}));
+
+  // Living situation breakdown
+  const livingMap={};ar.forEach(r=>{if(r.living)livingMap[r.living]=(livingMap[r.living]||0)+1;});
+  const livingTop=Object.entries(livingMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>({l:k,p:Math.round(v/ar.length*100)}));
+
+  // All ratings
+  const RATING_LABELS=[
+    {key:'overall',label:'Overall rating'},
+    {key:'commute',label:'Commute convenience'},
+    {key:'auto_cab',label:'Auto / cab availability'},
+    {key:'walkability',label:'Walkability'},
+    {key:'grocery',label:'Grocery & market access'},
+    {key:'hospital',label:'Hospital / clinic access'},
+    {key:'traffic',label:'Traffic (higher = better)'},
+    {key:'safety_day',label:'Safety — day'},
+    {key:'safety_night',label:'Safety — night'},
+    {key:'lighting',label:'Street lighting'},
+    {key:'air_quality',label:'Air quality'},
+    {key:'noise',label:'Noise levels (higher = quieter)'},
+    {key:'greenery',label:'Greenery & parks'},
+    {key:'food_dining',label:'Food & dining'},
+    {key:'nightlife',label:'Nightlife & social scene'},
+    {key:'public_transport',label:'Public transport'},
+    {key:'schools',label:'School access'},
+  ];
+  const ratingsWithData=RATING_LABELS.map(r=>({...r,val:avg(r.key)})).filter(r=>r.val>0);
+
+  // Infrastructure
+  const waterMode=mode('water');
+  const powerMode=mode('power');
+  const internetMode=mode('internet');
+  const floodingMode=mode('flooding');
+  function infraClass(key,val){
+    if(!val)return'';
+    if(key==='water')return val.includes('Daily')?'good':val.includes('reliable')?'good':val.includes('Alternate')?'ok':'bad';
+    if(key==='power')return val==='Rarely'?'good':val==='Occasionally'?'ok':'bad';
+    if(key==='internet')return val.includes('Excellent')?'good':val.includes('Good')?'good':val.includes('patchy')?'ok':'bad';
+    if(key==='flooding')return val.includes('never')?'good':val.includes('Minor')?'ok':'bad';
+    return '';
+  }
+
+  const noDataHtml='<div class="no-data-section">Not enough data yet — be the first to contribute for this area.</div>';
+
+  let html=`
+    <button class="detail-back" onclick="closeAreaDetail()">← Back to all areas</button>
+
+    <div class="detail-hero">
+      <div class="detail-hero-top">
+        <div>
+          <div class="detail-name">${area}</div>
+          <div class="detail-zone">${zone} Bengaluru · <span class="cbadge ${badge.cls}" style="display:inline;">${badge.label}</span></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="contributeForArea('${area.replace(/'/g,"\'")}')">Add your data</button>
+      </div>
+      <div class="detail-metrics">
+        <div class="dm"><div class="dl">Responses</div><div class="dv">${n}</div><div class="ds">community submissions</div></div>
+        ${hasData&&overallAvg>0?`<div class="dm"><div class="dl">Overall rating</div><div class="dv">${overallAvg.toFixed(1)}<span style="font-size:14px;font-weight:400;color:var(--muted);"> / 5</span></div><div class="ds">avg across all ratings</div></div>`:''}
+        ${hasData&&recommendPct>0?`<div class="dm"><div class="dl">Would recommend</div><div class="dv">${recommendPct}%</div><div class="ds">of residents</div></div>`:''}
+        ${hasData&&rentByBhk.length?`<div class="dm"><div class="dl">Median 2BHK rent</div><div class="dv" style="font-size:16px;">${(()=>{const b=rentByBhk.find(r=>r.bhk==='2 BHK');return b?'₹'+(b.median/1000).toFixed(0)+'k/mo':'—';})()}</div><div class="ds">per month</div></div>`:''}
+      </div>
+    </div>
+
+    <p class="resp-note-detail">All data is anonymised and aggregated — no individual response is ever shown. Data shown once 3+ people have contributed.</p>`;
+
+  // Liveability ratings
+  html+=`<div class="detail-section"><h3>Liveability ratings</h3>`;
+  if(!hasData||!ratingsWithData.length){html+=noDataHtml;}
+  else{html+=ratingsWithData.map(r=>`
+    <div class="rating-bar-row">
+      <span class="rb-label">${r.label}</span>
+      <div class="rb-bar-wrap"><div class="rb-bar" style="width:${barWidth(r.val)}%"></div></div>
+      <span class="rb-score ${scoreClass(r.val)}">${r.val.toFixed(1)}</span>
+    </div>`).join('');}
+  html+=`</div>`;
+
+  // Rent by BHK
+  html+=`<div class="detail-section"><h3>Rent by BHK type</h3>`;
+  if(!hasData||!rentByBhk.length){html+=noDataHtml;}
+  else{html+=`<div class="rent-bhk-grid">${rentByBhk.map(b=>`
+    <div class="rent-bhk-card">
+      <div class="bhk-type">${b.bhk}</div>
+      <div class="bhk-range">₹${Math.round(b.min/1000)}k – ₹${Math.round(b.max/1000)}k</div>
+      <div class="bhk-median">median ₹${Math.round(b.median/1000)}k/mo · ${b.count} response${b.count>1?'s':''}</div>
+    </div>`).join('')}</div>`;}
+  html+=`</div>`;
+
+  // Who lives here
+  html+=`<div class="detail-section"><h3>Who lives here</h3>`;
+  if(!hasData){html+=noDataHtml;}
+  else{html+=`<div class="who-grid-2">
+    <div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">By industry</div>
+      ${profTop.map(w=>`<div class="who-bar-row"><span class="wl">${w.l}</span><div class="who-bw"><div class="who-bf" style="width:${w.p}%"></div></div><span class="who-pct">${w.p}%</span></div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Living situation</div>
+      ${livingTop.map(w=>`<div class="who-bar-row"><span class="wl">${w.l}</span><div class="who-bw"><div class="who-bf" style="width:${w.p}%"></div></div><span class="who-pct">${w.p}%</span></div>`).join('')}
+    </div>
+  </div>`;}
+  html+=`</div>`;
+
+  // Infrastructure
+  html+=`<div class="detail-section"><h3>Infrastructure</h3>`;
+  if(!hasData||(!waterMode&&!powerMode&&!internetMode&&!floodingMode)){html+=noDataHtml;}
+  else{html+=`
+    ${waterMode?`<div class="infra-row"><span class="infra-label">Water supply</span><span class="infra-val ${infraClass('water',waterMode)}">${waterMode}</span></div>`:''}
+    ${powerMode?`<div class="infra-row"><span class="infra-label">Power cuts</span><span class="infra-val ${infraClass('power',powerMode)}">${powerMode}</span></div>`:''}
+    ${internetMode?`<div class="infra-row"><span class="infra-label">Internet / fiber</span><span class="infra-val ${infraClass('internet',internetMode)}">${internetMode}</span></div>`:''}
+    ${floodingMode?`<div class="infra-row"><span class="infra-label">Monsoon flooding</span><span class="infra-val ${infraClass('flooding',floodingMode)}">${floodingMode}</span></div>`:''}
+  `;}
+  html+=`</div>`;
+
+  // CTA
+  html+=`<div class="detail-contribute-cta">
+    <p>Live in ${area}? Your data makes this more accurate for everyone moving here.</p>
+    <button class="btn btn-primary btn-sm" onclick="contributeForArea('${area.replace(/'/g,"\'")}')">Add your experience →</button>
+  </div>`;
+
+  document.getElementById('area-detail-content').innerHTML=html;
+}
+
 async function init(){
   const wg=document.getElementById('workplace-grp');
   if(wg)ALL_AREAS.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;wg.appendChild(o);});
@@ -742,7 +974,22 @@ async function renderAreaGrid(search='',zone=''){
       if(sc.length)scoreInfo=(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1)+' ★';
     }
     const dotC=n>=3?'#16a34a':n>0?'#f59e0b':'#d1d5db';
-    return`<div class="area-card"><div class="area-top"><div class="area-name">${area}</div><div class="cbadge ${badge.cls}">${badge.label}</div></div><div class="area-zone">${AREA_ZONES[area]} Bengaluru</div><div class="astats"><div class="astat${hasData?'':' blurred'}">${rentInfo}</div>${bhkInfo?`<div class="astat">${bhkInfo}</div>`:''}${scoreInfo?`<div class="astat">${scoreInfo}</div>`:''}</div><div class="resp-count"><span class="dot" style="background:${dotC};"></span>${n} response${n!==1?'s':''}</div></div>`;
+    const overallAvg=hasData?(()=>{const sc=ar.filter(r=>r.ratings&&r.ratings.overall>0).map(r=>r.ratings.overall);return sc.length?(sc.reduce((a,b)=>a+b,0)/sc.length):0;})():0;
+    const recommendPct=hasData?(()=>{const recs=ar.filter(r=>r.recommend&&(r.recommend.includes('yes')||r.recommend.includes('Yes')));return Math.round(recs.length/ar.length*100);})():0;
+    return`<div class="area-card" onclick="openAreaDetail('${area.replace(/'/g,"\\'")}')" role="button" tabindex="0">
+      <div class="area-top"><div class="area-name">${area}</div><div class="cbadge ${badge.cls}">${badge.label}</div></div>
+      <div class="area-zone">${AREA_ZONES[area]} Bengaluru</div>
+      <div class="astats">
+        <div class="astat${hasData?'':' blurred'}">${rentInfo}</div>
+        ${bhkInfo?`<div class="astat">${bhkInfo}</div>`:''}
+      </div>
+      ${hasData&&overallAvg>0?`<div class="area-card-score">
+        <span class="big-score">${overallAvg.toFixed(1)}</span>
+        <span class="score-label">/ 5 overall</span>
+        ${recommendPct>0?`<span style="margin-left:auto;font-size:12px;color:var(--muted);">${recommendPct}% recommend</span>`:''}
+      </div>`:''}
+      <div class="resp-count"><span class="dot" style="background:${dotC};"></span>${n} response${n!==1?'s':''}${hasData?'':n>0?' — click to see early data':' — be the first to contribute'}</div>
+    </div>`;
   }).join('');
 }
 
@@ -787,7 +1034,7 @@ async function renderCompare(){
   out.innerHTML=html;
 }
 
-init();
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
 </script>
 </body>
 </html>
